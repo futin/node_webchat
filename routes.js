@@ -42,21 +42,16 @@ module.exports = function(app,io){
 
 			var room = findClientsSocket(io,data);
 			if(room.length === 0 ) {
-
 				socket.emit('peopleinchat', {number: 0});
 			}
-			else if(room.length === 1) {
-
+			else {
 				socket.emit('peopleinchat', {
-					number: 1,
-					user: room[0].username,
-					avatar: room[0].avatar,
-					id: data
+					number: room.length,
+					user: room[room.length-1].username,
+					avatar: room[room.length-1].avatar,
+					roomName: room[0].roomName,
+					id:data
 				});
-			}
-			else if(room.length >= 2) {
-
-				chat.emit('tooMany', {boolean: true});
 			}
 		});
 
@@ -65,8 +60,6 @@ module.exports = function(app,io){
 		socket.on('login', function(data) {
 
 			var room = findClientsSocket(io, data.id);
-			// Only two people per room are allowed
-			if (room.length < 2) {
 
 				// Use the socket object to store data. Each client gets
 				// their own unique socket object
@@ -74,6 +67,7 @@ module.exports = function(app,io){
 				socket.username = data.user;
 				socket.room = data.id;
 				socket.avatar = gravatar.url(data.avatar, {s: '140', r: 'x', d: 'mm'});
+				socket.roomName = data.roomName;
 
 				// Tell the person what he should use for an avatar
 				socket.emit('img', socket.avatar);
@@ -82,16 +76,16 @@ module.exports = function(app,io){
 				// Add the client to the room
 				socket.join(data.id);
 
-				if (room.length == 1) {
-
 					var usernames = [],
 						avatars = [];
 
-					usernames.push(room[0].username);
-					usernames.push(socket.username);
+					for (var i in room){
+						if(Object.prototype.hasOwnProperty.call(room, i)){
+							usernames.push(room[i].username);
+							avatars.push(room[i].avatar);
+						}
 
-					avatars.push(room[0].avatar);
-					avatars.push(socket.avatar);
+					}
 
 					// Send the startChat event to all the people in the
 					// room, along with a list of people that are in it.
@@ -100,13 +94,10 @@ module.exports = function(app,io){
 						boolean: true,
 						id: data.id,
 						users: usernames,
-						avatars: avatars
+						avatars: avatars,
+                        roomName: data.roomName
 					});
-				}
-			}
-			else {
-				socket.emit('tooMany', {boolean: true});
-			}
+
 		});
 
 		// Somebody left the chat

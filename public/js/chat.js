@@ -12,7 +12,9 @@ $(function(){
 	var name = "",
 		email = "",
 		img = "",
-		friend = "";
+		friend = "",
+		room = "",
+		fadeTime = 200;
 
 	// cache some jQuery objects
 	var section = $(".section"),
@@ -31,6 +33,7 @@ $(function(){
 		loginForm = $(".loginForm"),
 		yourName = $("#yourName"),
 		yourEmail = $("#yourEmail"),
+		roomName = $("#roomName"),
 		hisName = $("#hisName"),
 		hisEmail = $("#hisEmail"),
 		chatForm = $("#chatform"),
@@ -66,8 +69,14 @@ $(function(){
 
 				e.preventDefault();
 
+				room = roomName.val();
+
 				name = $.trim(yourName.val());
-				
+
+				if(room.length < 3){
+					alert("Please enter a room name longer than 3 character!");
+					return;
+				}
 				if(name.length < 1){
 					alert("Please enter a nick name longer than 1 character!");
 					return;
@@ -83,13 +92,13 @@ $(function(){
 					showMessage("inviteSomebody");
 
 					// call the server-side function 'login' and send user's parameters
-					socket.emit('login', {user: name, avatar: email, id: id});
+					socket.emit('login', {roomName: room, user: name, avatar: email, id: id});
 				}
-			
+
 			});
 		}
 
-		else if(data.number === 1) {
+		else {
 
 			showMessage("personinchat",data);
 
@@ -120,9 +129,6 @@ $(function(){
 			});
 		}
 
-		else {
-			showMessage("tooManyPeople");
-		}
 
 	});
 
@@ -131,8 +137,7 @@ $(function(){
 	socket.on('startChat', function(data){
 		console.log(data);
 		if(data.boolean && data.id == id) {
-
-			chats.empty();
+			//chats.empty();
 
 			if(name === data.users[0]) {
 
@@ -152,7 +157,7 @@ $(function(){
 		if(data.boolean && id==data.room){
 
 			showMessage("somebodyLeft", data);
-			chats.empty();
+				chats.empty();
 		}
 
 	});
@@ -265,7 +270,7 @@ $(function(){
 		if(status === "connected"){
 
 			section.children().css('display', 'none');
-			onConnect.fadeIn(1200);
+			onConnect.fadeIn(fadeTime);
 		}
 
 		else if(status === "inviteSomebody"){
@@ -273,47 +278,48 @@ $(function(){
 			// Set the invite link content
 			$("#link").text(window.location.href);
 
-			onConnect.fadeOut(1200, function(){
-				inviteSomebody.fadeIn(1200);
+			onConnect.fadeOut(fadeTime, function(){
+				inviteSomebody.fadeIn(fadeTime);
 			});
 		}
 
 		else if(status === "personinchat"){
 
 			onConnect.css("display", "none");
-			personInside.fadeIn(1200);
+			personInside.fadeIn(fadeTime);
 
-			chatNickname.text(data.user);
+			chatNickname.text(data.roomName);
 			ownerImage.attr("src",data.avatar);
 		}
 
 		else if(status === "youStartedChatWithNoMessages") {
 
-			left.fadeOut(1200, function() {
-				inviteSomebody.fadeOut(1200,function(){
-					noMessages.fadeIn(1200);
-					footer.fadeIn(1200);
+			left.fadeOut(fadeTime, function() {
+				inviteSomebody.fadeOut(fadeTime,function(){
+					noMessages.fadeIn(fadeTime);
+					footer.fadeIn(fadeTime);
 				});
 			});
 
-			friend = data.users[1];
+			friend = data.roomName;
+
 			noMessagesImage.attr("src",data.avatars[1]);
 		}
 
 		else if(status === "heStartedChatWithNoMessages") {
 
-			personInside.fadeOut(1200,function(){
-				noMessages.fadeIn(1200);
-				footer.fadeIn(1200);
+			personInside.fadeOut(fadeTime,function(){
+				noMessages.fadeIn(fadeTime);
+				footer.fadeIn(fadeTime);
 			});
 
-			friend = data.users[0];
+			friend = data.roomName;
 			noMessagesImage.attr("src",data.avatars[0]);
 		}
 
 		else if(status === "chatStarted"){
 
-			section.children().css('display','none');
+			//section.children().css('display','none');
 			chatScreen.css('display','block');
 		}
 
@@ -324,14 +330,10 @@ $(function(){
 
 			section.children().css('display','none');
 			footer.css('display', 'none');
-			left.fadeIn(1200);
+			left.fadeIn(fadeTime);
 		}
 
-		else if(status === "tooManyPeople") {
 
-			section.children().css('display', 'none');
-			tooManyPeople.fadeIn(1200);
-		}
 	}
 
 });
