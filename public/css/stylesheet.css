@@ -651,7 +651,7 @@ footer {
 
 .chatscreen{
 	display:none;
-	width:700px;
+	tooma:700px;
 	margin: 0 auto 200px;
 	overflow:hidden;
 }

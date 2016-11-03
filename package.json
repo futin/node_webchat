@@ -19,5 +19,8 @@
     "express": "^4.8.2",
     "gravatar": "~1.0.6",
     "socket.io": "1.0.6"
+  },
+  "devDependencies": {
+    "googleapis": "^14.1.0"
   }
 }

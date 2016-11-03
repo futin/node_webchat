@@ -24,8 +24,7 @@ $(function () {
         personInside = $(".personinside"),
         chatScreen = $(".chatscreen"),
         left = $(".left"),
-        noMessages = $(".nomessages"),
-        tooManyPeople = $(".toomanypeople");
+        noMessages = $(".nomessages")
 
     // some more jquery objects
     var chatNickname = $(".nickname-chat"),
@@ -132,14 +131,6 @@ $(function () {
     socket.on('joined', function (data) {
         if (data.boolean && id == data.room) {
             showMessage("joined", data);
-        }
-    });
-
-    socket.on('tooMany', function (data) {
-
-        if (data.boolean && name.length === 0) {
-
-            showMessage('tooManyPeople');
         }
     });
 
