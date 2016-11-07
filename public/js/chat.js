@@ -29,6 +29,7 @@ $(function () {
     // some more jquery objects
     var chatNickname = $(".nickname-chat"),
         leftNickname = $(".nickname-left"),
+        uploadForm = $("#uploadForm"),
         loginForm = $(".loginForm"),
         yourName = $("#yourName"),
         yourEmail = $("#yourEmail"),
@@ -38,12 +39,14 @@ $(function () {
         chatForm = $("#chatform"),
         textarea = $("#message"),
         messageTimeSent = $(".timesent"),
-        chats = $(".chats");
+        chats = $(".chats"),
+        fileChoose = $(".file-choose");
 
     // these variables hold images
     var ownerImage = $("#ownerImage"),
         leftImage = $("#leftImage"),
-        noMessagesImage = $("#noMessagesImage");
+        noMessagesImage = $("#noMessagesImage"),
+        creatorImage = $("#creatorImage");
 
     // on connection to server get the id of person's room
     socket.on('connect', function () {
@@ -164,6 +167,7 @@ $(function () {
         // Empty the textarea
         textarea.val("");
     });
+
 
     // Update the relative time stamps on the chat messages every minute
     setInterval(function () {

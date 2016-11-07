@@ -10,124 +10,132 @@
 
 <head>
 
-	<title>Private chat room | Tutorialzine Demo</title>
+    <title>Private chat room | Tutorialzine Demo</title>
 
-	<link type="text/css" rel="stylesheet" href="../css/stylesheet.css" />
-	<link href="http://fonts.googleapis.com/css?family=Open+Sans Condensed:300italic,300,700" rel="stylesheet" type="text/css">
+    <link type="text/css" rel="stylesheet" href="../css/stylesheet.css"/>
+    <link href="http://fonts.googleapis.com/css?family=Open+Sans Condensed:300italic,300,700" rel="stylesheet"
+          type="text/css">
 
 
 </head>
 
 <body>
 
-	<header class="banner">
+<header class="banner">
 
-		<h1 class="bannertext">
-			<a href="http://tutorialzine.com/2014/03/nodejs-private-webchat/" id="logo">Tutorial<span>zine</span>: NODE.JS CHAT TUTORIAL</a>
-		</h1>
+    <h1 class="bannertext">
+        <a href="http://tutorialzine.com/2014/03/nodejs-private-webchat/" id="logo">Tutorial<span>zine</span>: NODE.JS
+            CHAT TUTORIAL</a>
+    </h1>
 
-	</header>
+</header>
 
 
-	<section class="section">
+<section class="section">
 
-		<!-- These elements are displayed as white info cards in the middle of the screen -->
+    <!-- These elements are displayed as white info cards in the middle of the screen -->
 
-		<div class="connected">
+    <div class="connected">
 
-			<img src="../img/unnamed.jpg" id="creatorImage" />
+        <form id="uploadForm" enctype="multipart/form-data" action="/upload" method="post">
+            <label class="file-choose" id="fileChoose">
+                <input id="fileChooseId" type="file" name="avatarImg" accept="image/*" onchange="previewAndSubmit();"
+                       style="display: none;" />
+            </label>
 
-			<div class="infoConnected">
-				<h2>Who are you?</h2>
-				<br/>
+        </form>
+        <div class="infoConnected">
+            <h2>Who are you?</h2>
+            <br/>
 
-				<form class="loginForm">
-					<input type="text" id="roomName" placeholder="Enter room name" /><br/>
-					<input type="text" id="yourName" placeholder="Your nick name" /><br/>
-					<input type="text" id="yourEmail" placeholder="Your email address" /><br/>
-					<input type="submit" id="yourEnter" value="ENTER" />
-				</form>
+            <form class="loginForm">
+                <input type="text" id="roomName" placeholder="Enter room name"/><br/>
+                <input type="text" id="yourName" placeholder="Your nick name"/><br/>
+                <input type="text" id="yourEmail" placeholder="Your email address"/><br/>
+                <input type="submit" id="yourEnter" value="ENTER"/>
+            </form>
 
-			</div>
+        </div>
 
-		</div>
+    </div>
 
-		<div class="personinside">
+    <div class="personinside">
 
-			<img src="../img/unnamed.jpg" id="ownerImage" />
+        <img src="../img/unnamed.jpg" id="ownerImage"/>
 
-			<div class="infoInside">
-				<h2>Chat in <span class="nickname-chat"></span></h2>
-				<br/>
+        <div class="infoInside">
+            <h2>Chat in <span class="nickname-chat"></span></h2>
+            <br/>
 
-				<form class="loginForm">
-					<input type="text" id="hisName" placeholder="Your nick name" /><br/>
-					<input type="text" id="hisEmail" placeholder="Your email address" /><br/>
-					<input type="submit" id="hisEnter" value="CHAT" />
-				</form>
+            <form class="loginForm">
+                <input type="text" id="hisName" placeholder="Your nick name"/><br/>
+                <input type="text" id="hisEmail" placeholder="Your email address"/><br/>
+                <input type="submit" id="hisEnter" value="CHAT"/>
+            </form>
 
-			</div>
+        </div>
 
-		</div>
+    </div>
 
-		<div class="invite-textfield">
+    <div class="invite-textfield">
 
-			<h2>Oops, there are no other people in this chat!</h2>
-			<h5>Invite a friend by sending them this URL</h5>
+        <h2>Oops, there are no other people in this chat!</h2>
+        <h5>Invite a friend by sending them this URL</h5>
 
-			<div class="link">
-				<a title="Invite a friend" href="" id="link"></a>
-			</div>
+        <div class="link">
+            <a title="Invite a friend" href="" id="link"></a>
+        </div>
 
-		</div>
+    </div>
 
-		<div class="left">
+    <div class="left">
 
-			<img src="../img/unnamed.jpg" id="leftImage" />
+        <img src="../img/unnamed.jpg" id="leftImage"/>
 
-			<div class="info">
-				<h2><span class="nickname-left"></span> has left this chat.</h2>
-				<h5>Invite somebody else by sending them this page.</h5>
-			</div>
+        <div class="info">
+            <h2><span class="nickname-left"></span> has left this chat.</h2>
+            <h5>Invite somebody else by sending them this page.</h5>
+        </div>
 
-		</div>
+    </div>
 
-		<div class="nomessages">
+    <div class="nomessages">
 
-			<img src="../img/unnamed.jpg" id="noMessagesImage" />
+        <img src="../img/unnamed.jpg" id="noMessagesImage"/>
 
-			<div class="info">
-				<h2>You are chatting in <span class="nickname-chat"></span> room.</h2>
-				<h5>Send them a message from the form below!</h5>
-			</div>
+        <div class="info">
+            <h2>You are chatting in <span class="nickname-chat"></span> room.</h2>
+            <h5>Send them a message from the form below!</h5>
+        </div>
 
-		</div>
+    </div>
 
-		<div class="chatscreen">
+    <div class="chatscreen">
 
-			<ul class="chats">
-				<!-- The chat messages will go here -->
-			</ul>
+        <ul class="chats">
+            <!-- The chat messages will go here -->
+        </ul>
 
-		</div>
+    </div>
 
-	</section>
+</section>
 
-	<footer>
+<footer>
 
-		<form id="chatform">
+    <form id="chatform">
 
-			<textarea id="message" placeholder="Write something.."></textarea>
-			<input type="submit" id="submit" value="SEND"/>
+        <textarea id="message" placeholder="Write something.."></textarea>
+        <input type="submit" id="submit" value="SEND"/>
 
-		</form>
+    </form>
 
-	</footer>
+</footer>
 
-	<script src="http://cdnjs.cloudflare.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
-	<script src="../js/moment.min.js"></script>
-	<script src="/socket.io/socket.io.js"></script>
-	<script src="../js/chat.js"></script>
+<script src="http://cdnjs.cloudflare.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+<script src="../js/moment.min.js"></script>
+<script src="/socket.io/socket.io.js"></script>
+<script src="../js/chat.js"></script>
+<script src="../js/helper.js"></script>
 
 </body>
 

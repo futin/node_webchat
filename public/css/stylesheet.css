@@ -170,9 +170,17 @@ body {
 #creatorImage {
 	float: left;
 	margin: 90px 0 0 140px;
-	width: 100px;
-	height: 100px;
+	width: 140px;
+	height: 140px;
 	border-radius: 50%;
+}
+.file-choose{
+	float: left;
+	margin: 90px 0 0 140px;
+	width: 140px;
+	height: 140px;
+	background: url("../img/unnamed.jpg") no-repeat;
+	background-size:140px 140px;
 }
 
 #yourName {
@@ -651,7 +659,7 @@ footer {
 
 .chatscreen{
 	display:none;
-	tooma:700px;
+	width:700px;
 	margin: 0 auto 200px;
 	overflow:hidden;
 }

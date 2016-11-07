@@ -5,7 +5,7 @@
 // Use the gravatar module, to turn email addresses into avatar images:
 
 var gravatar = require('gravatar');
-
+var handler = require('./myhandlers/imageHandler')
 // Export a function, so that we can pass 
 // the app and io instances from the app.js file:
 
@@ -30,7 +30,23 @@ module.exports = function (app, io) {
         // Render the chant.html view
         res.render('chat');
     });
+    app.post('/upload', function (req, res, next) {
+        console.log("asdf");
+        handler.upload(req, res, function (err) {
+            {
+                if (err) {
+                    console.log(err);
+                    return;
+                } else {
+                }
+                console.log('upload: ' + req.file.originalname);
+                // Render the chant.html view
+                res.render('chat');
 
+                res.redirect('/chat/' + 316608);
+            }
+        });
+    });
     // Initialize a new socket.io application, named 'chat'
     var chat = io.on('connection', function (socket) {
 
@@ -63,7 +79,7 @@ module.exports = function (app, io) {
             socket.room = data.id;
             socket.avatar = gravatar.url(data.avatar, {s: '140', r: 'x', d: 'mm'});
             socket.roomName = data.roomName;
-
+            socket.image = data.image;
             // Tell the person what he should use for an avatar
             socket.emit('img', socket.avatar);
 
@@ -119,6 +135,15 @@ module.exports = function (app, io) {
 
             // When the server receives a message, it sends it to the other person in the room.
             socket.broadcast.to(socket.room).emit('receive', {msg: data.msg, user: data.user, img: data.img});
+        });
+
+        socket.on('test', function (data) {
+            console.log(data);
+            handler.upload.single('avatarImg'), function (req, res, next) {
+                console.log("uploaded");
+                console.log(req.file.originalname);
+
+            }
         });
     });
 };
