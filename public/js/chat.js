@@ -1,7 +1,6 @@
 // This file is executed in the browser, when people visit /chat/<random id>
 
 $(function () {
-
     // getting the id of the room from the url
     var id = Number(window.location.pathname.match(/\/chat\/(\d+)$/)[1]);
 
@@ -14,6 +13,7 @@ $(function () {
         img = "",
         friend = "",
         room = "",
+        timeout="",
         fadeTime = 200;
 
     // cache some jQuery objects
@@ -40,7 +40,8 @@ $(function () {
         textarea = $("#message"),
         messageTimeSent = $(".timesent"),
         chats = $(".chats"),
-        fileChoose = $(".file-choose");
+        typeForm = $("#typingID"),
+        typeName = $(".typing-person");
 
     // these variables hold images
     var ownerImage = $("#ownerImage"),
@@ -57,7 +58,6 @@ $(function () {
     socket.on('img', function (data) {
         img = data;
     });
-
     // receive the names and avatars of all people in the chat room
     socket.on('peopleinchat', function (data) {
         if (data.number === 0) {
@@ -144,12 +144,24 @@ $(function () {
         }
     });
 
+    socket.on('isTyping', function (data) {
+       if(data.boolean){
+           if(timeout)
+               clearTimeout(timeout);
+           typeForm.css("display", "block");
+           typeName.text(data.user);
+           timeout = setTimeout(typingTimeout, 2000);
+       }
+    });
+
     textarea.keypress(function (e) {
 
         // Submit the form on enter
         if (e.which == 13) {
             e.preventDefault();
             chatForm.trigger('submit');
+        }else{
+            socket.emit('type');
         }
     });
 
@@ -167,7 +179,9 @@ $(function () {
         // Empty the textarea
         textarea.val("");
     });
-
+    uploadForm.on('submit', function(e){
+        e.preventDefault();
+    });
 
     // Update the relative time stamps on the chat messages every minute
     setInterval(function () {
@@ -214,6 +228,10 @@ $(function () {
 
         var re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
         return re.test(thatemail);
+    }
+
+    function typingTimeout(){
+        typeForm.css("display", "none");
     }
 
     function showMessage(status, data) {

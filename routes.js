@@ -5,7 +5,9 @@
 // Use the gravatar module, to turn email addresses into avatar images:
 
 var gravatar = require('gravatar');
-var handler = require('./myhandlers/imageHandler')
+var handler = require('./myhandlers/imageHandler');
+var test = require('./utils/constants.js');
+
 // Export a function, so that we can pass 
 // the app and io instances from the app.js file:
 
@@ -30,15 +32,14 @@ module.exports = function (app, io) {
         // Render the chant.html view
         res.render('chat');
     });
+/*
     app.post('/upload', function (req, res, next) {
-        console.log("asdf");
         handler.upload(req, res, function (err) {
-            {
-                if (err) {
-                    console.log(err);
-                    return;
-                } else {
-                }
+            if (err) {
+                console.log(err);
+                return;
+            } else {
+
                 console.log('upload: ' + req.file.originalname);
                 // Render the chant.html view
                 res.render('chat');
@@ -47,6 +48,7 @@ module.exports = function (app, io) {
             }
         });
     });
+*/
     // Initialize a new socket.io application, named 'chat'
     var chat = io.on('connection', function (socket) {
 
@@ -79,7 +81,7 @@ module.exports = function (app, io) {
             socket.room = data.id;
             socket.avatar = gravatar.url(data.avatar, {s: '140', r: 'x', d: 'mm'});
             socket.roomName = data.roomName;
-            socket.image = data.image;
+
             // Tell the person what he should use for an avatar
             socket.emit('img', socket.avatar);
 
@@ -111,6 +113,15 @@ module.exports = function (app, io) {
                 users: usernames,
                 avatars: avatars,
                 roomName: data.roomName
+            });
+        });
+
+        socket.on('type', function(){
+            socket.broadcast.to(this.room).emit('isTyping', {
+                boolean: true,
+                room: this.room,
+                user: this.username,
+                avatar: this.avatar
             });
         });
 

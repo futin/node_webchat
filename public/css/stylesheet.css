@@ -470,6 +470,7 @@ body {
 }
 
 
+
 /* ------ Chat Screen ------ */
 
 
@@ -574,6 +575,15 @@ body {
 
 /* ------------ Footer styles ------------ */
 
+#typingID{
+	float:left;
+	padding-left: 30px;
+	width: 150px;
+	display: none;
+}
+.typing-person{
+	overflow: hidden;
+}
 footer {
 	position:fixed;
 	bottom:0;

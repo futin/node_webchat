@@ -37,7 +37,7 @@
 
     <div class="connected">
 
-        <form id="uploadForm" enctype="multipart/form-data" action="/upload" method="post">
+        <form id="uploadForm" enctype="multipart/form-data">
             <label class="file-choose" id="fileChoose">
                 <input id="fileChooseId" type="file" name="avatarImg" accept="image/*" onchange="previewAndSubmit();"
                        style="display: none;" />
@@ -121,7 +121,9 @@
 </section>
 
 <footer>
-
+<label id="typingID" >
+    <p><span class="typing-person"></span> is typing...</p>
+</label>
     <form id="chatform">
 
         <textarea id="message" placeholder="Write something.."></textarea>
@@ -136,6 +138,7 @@
 <script src="/socket.io/socket.io.js"></script>
 <script src="../js/chat.js"></script>
 <script src="../js/helper.js"></script>
+<script src="../utils/constants.js"></script>
 
 </body>
 

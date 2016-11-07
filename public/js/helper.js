@@ -18,7 +18,7 @@ function previewAndSubmit(){
 
     if(image) {
         reader.readAsDataURL(image);
-        document.forms['uploadForm'].submit();
+        //document.forms['uploadForm'].submit();
     }
 }
 
