@@ -121,7 +121,7 @@ $(function () {
             else {
                 showMessage("heStartedChatWithNoMessages", data);
             }
-            chatNickname.text(friend);
+            chatNickname.text(data.roomName);
         }
     });
 
@@ -150,7 +150,7 @@ $(function () {
                clearTimeout(timeout);
            typeForm.css("display", "block");
            typeName.text(data.user);
-           timeout = setTimeout(typingTimeout, 2000);
+           timeout = setTimeout(typingTimeout, 1500);
        }
     });
 
@@ -267,7 +267,6 @@ $(function () {
                 });
             });
 
-            friend = data.roomName;
             noMessagesImage.attr("src", data.avatars[1]);
         }
         else if (status === "heStartedChatWithNoMessages") {
@@ -275,7 +274,6 @@ $(function () {
                 noMessages.fadeIn(fadeTime);
                 footer.fadeIn(fadeTime);
             });
-            friend = data.roomName;
             noMessagesImage.attr("src", data.avatars[0]);
         }
         else if (status === "somebodyLeft") {

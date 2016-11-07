@@ -589,13 +589,13 @@ footer {
 	bottom:0;
 	left:0;
 	width:100%;
-	padding-top: 30px;
+	padding-top: 10px;
 	background-color: white;
 	height: 130px;
 }
 #chatform {
 	width:700px;
-	margin: 0 auto;
+	margin: 30px auto;
 	background-color: white;
 }
 
