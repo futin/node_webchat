@@ -595,13 +595,13 @@ footer {
 }
 #chatform {
 	width:700px;
-	margin: 30px auto;
+	margin: 25px auto;
 	background-color: white;
 }
 
 #message {
 	width: 550px;
-	height: 80px;
+	height: 70px;
 	display: block;
 	float:left;
 	margin: 0 auto;
