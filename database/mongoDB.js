@@ -5,7 +5,7 @@ mongoose.connect('mongodb://localhost/web-chat');
 
 var db = mongoose.connection;
 db.on('error', console.error.bind(console, 'connection error:'));
-db.once('open', function() {
+db.once('open', function () {
     // we're connected!
     console.log("we are connected!");
 });
@@ -23,12 +23,10 @@ function saveUser(myUser) {
         if (err)
             return console.log(err);
         console.log("User saved: " + user.name);
-        return user;
     });
-
 }
 
-function getAllUsers(){
+function getAllUsers() {
     User.find(function (err, users) {
         if (err)
             console.log('error getting users: ' + err);
@@ -37,23 +35,34 @@ function getAllUsers(){
     });
 }
 
-function getSpecificData(query){
+function getUsersFromRoom(query) {
     User.find({'roomId': query}, 'roomId name email', function (err, users) {
-        if(err)
-            return console.log("Error occurred: "+err);
-        console.log("Specific data: "+users);
+        if (err)
+            return console.log("Error occurred: " + err);
+        console.log("users from room " + query + ": " + users);
         return users;
     });
 }
+
+function getUser(username) {
+    User.find({'name': username}, 'roomId name email', function (err, user) {
+        if (err)
+            return console.log("Error occurred: " + err);
+        console.log("User with name " + username + ": " + users);
+        return users;
+    });
+}
+
+
 function removeAll() {
     User.find({}).remove(function (err, result) {
         if (err)
             return console.log(err);
-        console.log("Room removed: " + result);
+        console.log("All data removed");
     });
 }
 
-function removeRoom(roomId){
+function removeRoom(roomId) {
     User.find({'roomId': roomId}).remove(function (err, result) {
         if (err)
             return console.log(err);
