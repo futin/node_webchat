@@ -6,7 +6,8 @@
 
 var gravatar = require('gravatar');
 var handler = require('./myhandlers/imageHandler');
-var test = require('./utils/constants.js');
+var mongodb = require('./database/mongoDB');
+var User = mongodb.User;
 
 // Export a function, so that we can pass 
 // the app and io instances from the app.js file:
@@ -32,23 +33,23 @@ module.exports = function (app, io) {
         // Render the chant.html view
         res.render('chat');
     });
-/*
-    app.post('/upload', function (req, res, next) {
-        handler.upload(req, res, function (err) {
-            if (err) {
-                console.log(err);
-                return;
-            } else {
+    /*
+     app.post('/upload', function (req, res, next) {
+     handler.upload(req, res, function (err) {
+     if (err) {
+     console.log(err);
+     return;
+     } else {
 
-                console.log('upload: ' + req.file.originalname);
-                // Render the chant.html view
-                res.render('chat');
+     console.log('upload: ' + req.file.originalname);
+     // Render the chant.html view
+     res.render('chat');
 
-                res.redirect('/chat/' + 316608);
-            }
-        });
-    });
-*/
+     res.redirect('/chat/' + 316608);
+     }
+     });
+     });
+     */
     // Initialize a new socket.io application, named 'chat'
     var chat = io.on('connection', function (socket) {
 
@@ -96,6 +97,13 @@ module.exports = function (app, io) {
                 avatar: this.avatar
             });
 
+            //add user to database
+            var user = new User({
+                roomId: this.room,
+                name: this.username,
+                email: this.avatar
+            });
+
             var usernames = [],
                 avatars = [];
             for (var i in room) {
@@ -116,7 +124,7 @@ module.exports = function (app, io) {
             });
         });
 
-        socket.on('type', function(){
+        socket.on('type', function () {
             socket.broadcast.to(this.room).emit('isTyping', {
                 boolean: true,
                 room: this.room,
@@ -179,5 +187,7 @@ function findClientsSocket(io, roomId, namespace) {
     }
     return res;
 }
+
+
 
 
