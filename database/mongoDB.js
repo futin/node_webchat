@@ -53,15 +53,6 @@ function getUser(username) {
     });
 }
 
-
-function removeAll() {
-    User.find({}).remove(function (err, result) {
-        if (err)
-            return console.log(err);
-        console.log("All data removed");
-    });
-}
-
 function removeRoom(roomId) {
     User.find({'roomId': roomId}).remove(function (err, result) {
         if (err)
@@ -71,11 +62,20 @@ function removeRoom(roomId) {
 
 }
 
+function removeAll() {
+    User.find({}).remove(function (err, result) {
+        if (err)
+            return console.log(err);
+        console.log("All data removed");
+    });
+}
+
 module.exports = {
     User: User,
     saveUser: saveUser,
     getAllUsers: getAllUsers,
-    getSpecificData: getSpecificData,
+    getUsersFromRoom: getUsersFromRoom,
+    getUser: getUser,
     removeRoom: removeRoom,
     removeAll: removeAll
 };
