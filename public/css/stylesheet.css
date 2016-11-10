@@ -468,6 +468,9 @@ body {
 .nickname-chat {
 	overflow: hidden;
 }
+.nickname-chat-room{
+	overflow: hidden;
+}
 
 
 

@@ -11,7 +11,7 @@ $(function () {
     var name = "",
         email = "",
         img = "",
-        friend = "",
+        others = [],
         room = "",
         timeout="",
         fadeTime = 200;
@@ -28,6 +28,7 @@ $(function () {
 
     // some more jquery objects
     var chatNickname = $(".nickname-chat"),
+        roomNickname = $(".nickname-chat-room"),
         leftNickname = $(".nickname-left"),
         uploadForm = $("#uploadForm"),
         loginForm = $(".loginForm"),
@@ -121,7 +122,18 @@ $(function () {
             else {
                 showMessage("heStartedChatWithNoMessages", data);
             }
-            chatNickname.text(data.roomName);
+            if(data.users.length == 1){
+                chatNickname.text("nobody");
+            }else{
+                others = [];
+                for ( var i in data.users){
+                    if (Object.prototype.hasOwnProperty.call(data.users, i) &&
+                        data.users[i] !== name) {
+                        others.push(data.users[i]);
+                    }
+                }
+                chatNickname.text(others);
+            }
         }
     });
 
@@ -255,7 +267,7 @@ $(function () {
             onConnect.css("display", "none");
             personInside.fadeIn(fadeTime);
 
-            chatNickname.text(data.roomName);
+            roomNickname.text(data.roomName);
             ownerImage.attr("src", data.avatar);
         }
         else if (status === "youStartedChatWithNoMessages") {
@@ -277,17 +289,13 @@ $(function () {
             noMessagesImage.attr("src", data.avatars[0]);
         }
         else if (status === "somebodyLeft") {
-            if (data.roomName) {
-                leftImage.attr("src",data.avatar);
-                leftNickname.text(data.user);
-
-                section.children().css('display','none');
-                footer.css('display', 'none');
-                left.fadeIn(fadeTime);
-            } else {
                 createChatMessage("Has left this room", data.user, data.avatar, moment());
                 scrollToBottom();
-            }
+            var index = others.indexOf(data.user);
+            if(index > -1)
+                others.splice(index, 1);
+            chatNickname.text(others);
+
         }
         else if (status == "joined") {
             createChatMessage(data.user.concat(" has joined this room. Say hello"), data.user, data.avatar, moment());

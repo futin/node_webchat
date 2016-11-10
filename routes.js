@@ -52,23 +52,28 @@ module.exports = function (app, io) {
      */
     // Initialize a new socket.io application, named 'chat'
     var chat = io.on('connection', function (socket) {
-
         // When the client emits the 'load' event, reply with the
         // number of people in this chat room
         socket.on('load', function (data) {
-            var room = findClientsSocket(io, data);
-            if (room.length === 0) {
-                socket.emit('peopleinchat', {number: 0});
-            }
-            else {
-                socket.emit('peopleinchat', {
-                    number: room.length,
-                    user: room[room.length - 1].username,
-                    avatar: room[room.length - 1].avatar,
-                    roomName: room[room.length - 1].roomName,
-                    id: data
-                });
-            }
+            mongodb.getUsersFromRoom(data, function (err, result) {
+                if (err) {
+                    console.log(err);
+                    return;
+                }
+
+                if (result.length === 0) {
+                    socket.emit('peopleinchat', {number: 0});
+                }
+                else {
+                    socket.emit('peopleinchat', {
+                        number: result.length,
+                        user: result[result.length - 1].name,
+                        avatar: result[result.length - 1].email,
+                        roomName: result[result.length - 1].roomName,
+                        id: result[result.length - 1].roomId
+                    });
+                }
+            });
         });
 
         // When the client emits 'login', save his name and avatar,
@@ -100,27 +105,41 @@ module.exports = function (app, io) {
             //add user to database
             var user = new User({
                 roomId: this.room,
+                roomName: this.roomName,
                 name: this.username,
                 email: this.avatar
             });
 
-            var usernames = [],
-                avatars = [];
-            for (var i in room) {
-                if (Object.prototype.hasOwnProperty.call(room, i)) {
-                    usernames.push(room[i].username);
-                    avatars.push(room[i].avatar);
-                }
-            }
+            mongodb.saveUser(user, function (err, user) {
+                if (err) {
+                    console.log(err);
+                } else {
+                    console.log(user.name + " is saved");
+                    mongodb.getUsersFromRoom(data.id, function (err, users) {
+                        if (err) {
+                            console.log(err);
+                        } else {
+                            var usernames = [],
+                                avatars = [];
+                            for (var i in users) {
+                                if (Object.prototype.hasOwnProperty.call(users, i)) {
+                                    usernames.push(users[i].name);
+                                    avatars.push(users[i].email);
+                                }
+                            }
 
-            // Send the startChat event to all the people in the
-            // room, along with a list of people that are in it.
-            chat.in(data.id).emit('startChat', {
-                boolean: true,
-                id: data.id,
-                users: usernames,
-                avatars: avatars,
-                roomName: data.roomName
+                            // Send the startChat event to all the people in the
+                            // room, along with a list of people that are in it.
+                            chat.in(data.id).emit('startChat', {
+                                boolean: true,
+                                id: data.id,
+                                users: usernames,
+                                avatars: avatars,
+                                roomName: data.roomName
+                            });
+                        }
+                    });
+                }
             });
         });
 

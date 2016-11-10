@@ -12,17 +12,18 @@ db.once('open', function () {
 
 var userSchema = new Schema({
     roomId: String,
+    roomName: String,
     name: String,
     email: String
 });
 
 var User = mongoose.model('newUser', userSchema);
 
-function saveUser(myUser) {
+function saveUser(myUser, cb) {
     myUser.save(function (err, user) {
         if (err)
-            return console.log(err);
-        console.log("User saved: " + user.name);
+            return cb(err);
+        return cb(null, user);
     });
 }
 
@@ -35,12 +36,14 @@ function getAllUsers() {
     });
 }
 
-function getUsersFromRoom(query) {
-    User.find({'roomId': query}, 'roomId name email', function (err, users) {
-        if (err)
-            return console.log("Error occurred: " + err);
+function getUsersFromRoom(query, cb) {
+    User.find({'roomId': query}, 'roomId roomName name email', function (err, users) {
+        if (err) {
+            console.log("Error occurred: " + err);
+            return cb(err);
+        }
         console.log("users from room " + query + ": " + users);
-        return users;
+        return cb(null, users);
     });
 }
 
