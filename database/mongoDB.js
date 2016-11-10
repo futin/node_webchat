@@ -56,6 +56,14 @@ function getUser(username) {
     });
 }
 
+function removeUser(name){
+    User.find({'name': name}).remove(function (err, result) {
+        if (err)
+            return console.log(err);
+        console.log("person removed: " + result);
+    });
+}
+
 function removeRoom(roomId) {
     User.find({'roomId': roomId}).remove(function (err, result) {
         if (err)
@@ -80,5 +88,6 @@ module.exports = {
     getUsersFromRoom: getUsersFromRoom,
     getUser: getUser,
     removeRoom: removeRoom,
-    removeAll: removeAll
+    removeAll: removeAll,
+    removeUser: removeUser
 };

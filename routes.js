@@ -60,11 +60,9 @@ module.exports = function (app, io) {
                     console.log(err);
                     return;
                 }
-
                 if (result.length === 0) {
                     socket.emit('peopleinchat', {number: 0});
-                }
-                else {
+                }else {
                     socket.emit('peopleinchat', {
                         number: result.length,
                         user: result[result.length - 1].name,
@@ -166,6 +164,16 @@ module.exports = function (app, io) {
 
             // leave the room
             socket.leave(socket.room);
+            mongodb.removeUser(socket.username);
+            //Delete room from mongodb if there are no more people inside
+            mongodb.getUsersFromRoom(socket.room, function(err, result){
+               if(err)
+                   console.log(err);
+               if(result.length === 0){
+                   mongodb.removeRoom(socket.room);
+               }
+            });
+
         });
 
         // Handle the sending of messages
@@ -180,7 +188,6 @@ module.exports = function (app, io) {
             handler.upload.single('avatarImg'), function (req, res, next) {
                 console.log("uploaded");
                 console.log(req.file.originalname);
-
             }
         });
     });

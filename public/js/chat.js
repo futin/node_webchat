@@ -291,10 +291,17 @@ $(function () {
         else if (status === "somebodyLeft") {
                 createChatMessage("Has left this room", data.user, data.avatar, moment());
                 scrollToBottom();
+
+            //
             var index = others.indexOf(data.user);
             if(index > -1)
                 others.splice(index, 1);
-            chatNickname.text(others);
+
+            if(others.length > 0){
+                chatNickname.text(others);
+            }else{
+                chatNickname.text("nobody");
+            }
 
         }
         else if (status == "joined") {
