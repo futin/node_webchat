@@ -11,9 +11,9 @@ $(function () {
     var name = "",
         email = "",
         img = "",
-        others = [],
         room = "",
         timeout="",
+        others = [],
         fadeTime = 200;
 
     // cache some jQuery objects
@@ -29,7 +29,6 @@ $(function () {
     // some more jquery objects
     var chatNickname = $(".nickname-chat"),
         roomNickname = $(".nickname-chat-room"),
-        leftNickname = $(".nickname-left"),
         uploadForm = $("#uploadForm"),
         loginForm = $(".loginForm"),
         yourName = $("#yourName"),
@@ -80,8 +79,7 @@ $(function () {
                 email = yourEmail.val();
                 if (!isValid(email)) {
                     alert("Please enter a valid email!");
-                }
-                else {
+                }else {
                     showMessage("inviteSomebody");
 
                     // call the server-side function 'login' and send user's parameters
@@ -105,8 +103,7 @@ $(function () {
                 email = hisEmail.val();
                 if (!isValid(email)) {
                     alert("Wrong e-mail format!");
-                }
-                else {
+                }else {
                     socket.emit('login', {roomName:data.roomName, name: name, email: email, roomId: roomId});
                 }
             });
@@ -115,11 +112,9 @@ $(function () {
 
     socket.on('startChat', function (data) {
         if (data.emitted && data.roomId == roomId) {
-            //chats.empty();
             if (name === data.userNames[0]) {
                 showMessage("youStartedChatWithNoMessages", data);
-            }
-            else {
+            }else {
                 showMessage("heStartedChatWithNoMessages", data);
             }
             if(data.userNames.length == 1){
@@ -208,8 +203,7 @@ $(function () {
         var who = '';
         if (user === name) {
             who = 'me';
-        }
-        else {
+        }else {
             who = 'you';
         }
         var li = $(
@@ -233,7 +227,7 @@ $(function () {
     }
 
     function scrollToBottom() {
-        $("html, body").animate({scrollTop: $(document).height() - $(window).height()}, 1000);
+        $("html, body").animate({scrollTop: $(document).height() - $(window).height()}, fadeTime);
     }
 
     function isValid(thatemail) {
@@ -252,8 +246,7 @@ $(function () {
 
             //section.children().css('display', 'none');
             onConnect.fadeIn(fadeTime);
-        }
-        else if (status === "inviteSomebody") {
+        }else if (status === "inviteSomebody") {
 
             // Set the invite link content
             $("#link").text(window.location.href);
@@ -261,16 +254,14 @@ $(function () {
             onConnect.fadeOut(fadeTime, function () {
                 inviteSomebody.fadeIn(fadeTime);
             });
-        }
-        else if (status === "personinchat") {
+        }else if (status === "personinchat") {
 
             onConnect.css("display", "none");
             personInside.fadeIn(fadeTime);
 
             roomNickname.text(data.roomName);
             ownerImage.attr("src", data.email);
-        }
-        else if (status === "youStartedChatWithNoMessages") {
+        }else if (status === "youStartedChatWithNoMessages") {
 
             left.fadeOut(fadeTime, function () {
                 inviteSomebody.fadeOut(fadeTime, function () {
@@ -280,19 +271,16 @@ $(function () {
             });
 
             noMessagesImage.attr("src", data.emails[1]);
-        }
-        else if (status === "heStartedChatWithNoMessages") {
+        }else if (status === "heStartedChatWithNoMessages") {
             personInside.fadeOut(fadeTime, function () {
                 noMessages.fadeIn(fadeTime);
                 footer.fadeIn(fadeTime);
             });
             noMessagesImage.attr("src", data.emails[0]);
-        }
-        else if (status === "somebodyLeft") {
+        }else if (status === "somebodyLeft") {
                 createChatMessage("Has left this room", data.name, data.email, moment());
                 scrollToBottom();
 
-            //
             var index = others.indexOf(data.name);
             if(index > -1)
                 others.splice(index, 1);
@@ -302,9 +290,7 @@ $(function () {
             }else{
                 chatNickname.text("nobody");
             }
-
-        }
-        else if (status == "joined") {
+        }else if (status == "joined") {
             createChatMessage(data.name.concat(" has joined this room. Say hello"), data.name, data.email, moment());
             scrollToBottom();
         }

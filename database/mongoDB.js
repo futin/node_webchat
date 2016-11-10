@@ -6,7 +6,6 @@ mongoose.connect('mongodb://localhost/web-chat');
 var db = mongoose.connection;
 db.on('error', console.error.bind(console, 'connection error:'));
 db.once('open', function () {
-    // we're connected!
     console.log("we are connected!");
 });
 
@@ -70,7 +69,6 @@ function removeRoom(roomId) {
             return console.log(err);
         console.log("Room removed: " + result);
     });
-
 }
 
 function removeAll() {

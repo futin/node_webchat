@@ -33,25 +33,10 @@ module.exports = function (app, io) {
         // Render the chant.html view
         res.render('chat');
     });
-    /*
-     app.post('/upload', function (req, res, next) {
-     handler.upload(req, res, function (err) {
-     if (err) {
-     console.log(err);
-     return;
-     } else {
 
-     console.log('upload: ' + req.file.originalname);
-     // Render the chant.html view
-     res.render('chat');
-
-     res.redirect('/chat/' + 316608);
-     }
-     });
-     });
-     */
     // Initialize a new socket.io application, named 'chat'
     var chat = io.on('connection', function (socket) {
+
         // When the client emits the 'load' event, reply with the
         // number of people in this chat room
         socket.on('load', function (data) {
@@ -62,13 +47,13 @@ module.exports = function (app, io) {
                 }
                 if (result.length === 0) {
                     socket.emit('peopleinchat', {number: 0});
-                }else {
+                } else {
                     socket.emit('peopleinchat', {
                         number: result.length,
-                        name: result[result.length - 1].name,
-                        email: result[result.length - 1].email,
+                        roomId: result[result.length - 1].roomId,
                         roomName: result[result.length - 1].roomName,
-                        roomId: result[result.length - 1].roomId
+                        name: result[result.length - 1].name,
+                        email: result[result.length - 1].email
                     });
                 }
             });
@@ -80,10 +65,10 @@ module.exports = function (app, io) {
 
             // Use the socket object to store data. Each client gets
             // their own unique socket object
-            socket.name = data.name;
             socket.roomId = data.roomId;
-            socket.email = gravatar.url(data.email, {s: '140', r: 'x', d: 'mm'});
             socket.roomName = data.roomName;
+            socket.name = data.name;
+            socket.email = gravatar.url(data.email, {s: '140', r: 'x', d: 'mm'});
 
             // Tell the person what he should use for an avatar
             socket.emit('img', socket.email);
@@ -130,9 +115,9 @@ module.exports = function (app, io) {
                             chat.in(data.roomId).emit('startChat', {
                                 emitted: true,
                                 roomId: data.roomId,
+                                roomName: data.roomName,
                                 userNames: userNames,
-                                emails: emails,
-                                roomName: data.roomName
+                                emails: emails
                             });
                         }
                     });
@@ -165,14 +150,13 @@ module.exports = function (app, io) {
             socket.leave(socket.roomId);
             mongodb.removeUser(socket.name);
             //Delete room from mongodb if there are no more people inside
-            mongodb.getUsersFromRoom(socket.roomId, function(err, result){
-               if(err)
-                   console.log(err);
-               if(result.length === 0){
-                   mongodb.removeRoom(socket.roomId);
-               }
+            mongodb.getUsersFromRoom(socket.roomId, function (err, result) {
+                if (err)
+                    console.log(err);
+                if (result.length === 0) {
+                    mongodb.removeRoom(socket.roomId);
+                }
             });
-
         });
 
         // Handle the sending of messages
@@ -180,14 +164,6 @@ module.exports = function (app, io) {
 
             // When the server receives a message, it sends it to the other person in the room.
             socket.broadcast.to(socket.roomId).emit('receive', {msg: data.msg, name: data.name, img: data.img});
-        });
-
-        socket.on('test', function (data) {
-            console.log(data);
-            handler.upload.single('avatarImg'), function (req, res, next) {
-                console.log("uploaded");
-                console.log(req.file.originalname);
-            }
         });
     });
 };
