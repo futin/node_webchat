@@ -65,10 +65,10 @@ module.exports = function (app, io) {
                 }else {
                     socket.emit('peopleinchat', {
                         number: result.length,
-                        user: result[result.length - 1].name,
-                        avatar: result[result.length - 1].email,
+                        name: result[result.length - 1].name,
+                        email: result[result.length - 1].email,
                         roomName: result[result.length - 1].roomName,
-                        id: result[result.length - 1].roomId
+                        roomId: result[result.length - 1].roomId
                     });
                 }
             });
@@ -77,35 +77,34 @@ module.exports = function (app, io) {
         // When the client emits 'login', save his name and avatar,
         // and add them to the room
         socket.on('login', function (data) {
-            var room = findClientsSocket(io, data.id);
 
             // Use the socket object to store data. Each client gets
             // their own unique socket object
-            socket.username = data.user;
-            socket.room = data.id;
-            socket.avatar = gravatar.url(data.avatar, {s: '140', r: 'x', d: 'mm'});
+            socket.name = data.name;
+            socket.roomId = data.roomId;
+            socket.email = gravatar.url(data.email, {s: '140', r: 'x', d: 'mm'});
             socket.roomName = data.roomName;
 
             // Tell the person what he should use for an avatar
-            socket.emit('img', socket.avatar);
+            socket.emit('img', socket.email);
 
             // Add the client to the room
-            socket.join(data.id);
+            socket.join(data.roomId);
 
             //let everybody know that you are in the room
-            socket.broadcast.to(this.room).emit('joined', {
-                boolean: true,
-                room: this.room,
-                user: this.username,
-                avatar: this.avatar
+            socket.broadcast.to(this.roomId).emit('joined', {
+                emitted: true,
+                roomId: this.roomId,
+                name: this.name,
+                email: this.email
             });
 
             //add user to database
             var user = new User({
-                roomId: this.room,
+                roomId: this.roomId,
                 roomName: this.roomName,
-                name: this.username,
-                email: this.avatar
+                name: this.name,
+                email: this.email
             });
 
             mongodb.saveUser(user, function (err, user) {
@@ -113,26 +112,26 @@ module.exports = function (app, io) {
                     console.log(err);
                 } else {
                     console.log(user.name + " is saved");
-                    mongodb.getUsersFromRoom(data.id, function (err, users) {
+                    mongodb.getUsersFromRoom(data.roomId, function (err, users) {
                         if (err) {
                             console.log(err);
                         } else {
-                            var usernames = [],
-                                avatars = [];
+                            var userNames = [],
+                                emails = [];
                             for (var i in users) {
                                 if (Object.prototype.hasOwnProperty.call(users, i)) {
-                                    usernames.push(users[i].name);
-                                    avatars.push(users[i].email);
+                                    userNames.push(users[i].name);
+                                    emails.push(users[i].email);
                                 }
                             }
 
                             // Send the startChat event to all the people in the
                             // room, along with a list of people that are in it.
-                            chat.in(data.id).emit('startChat', {
-                                boolean: true,
-                                id: data.id,
-                                users: usernames,
-                                avatars: avatars,
+                            chat.in(data.roomId).emit('startChat', {
+                                emitted: true,
+                                roomId: data.roomId,
+                                userNames: userNames,
+                                emails: emails,
                                 roomName: data.roomName
                             });
                         }
@@ -142,11 +141,11 @@ module.exports = function (app, io) {
         });
 
         socket.on('type', function () {
-            socket.broadcast.to(this.room).emit('isTyping', {
-                boolean: true,
-                room: this.room,
-                user: this.username,
-                avatar: this.avatar
+            socket.broadcast.to(this.roomId).emit('isTyping', {
+                emitted: true,
+                roomId: this.roomId,
+                name: this.name,
+                email: this.email
             });
         });
 
@@ -155,22 +154,22 @@ module.exports = function (app, io) {
 
             // Notify the other person in the chat room
             // that his partner has left
-            socket.broadcast.to(this.room).emit('leave', {
-                boolean: true,
-                room: this.room,
-                user: this.username,
-                avatar: this.avatar
+            socket.broadcast.to(this.roomId).emit('leave', {
+                emitted: true,
+                roomId: this.roomId,
+                name: this.name,
+                email: this.email
             });
 
             // leave the room
-            socket.leave(socket.room);
-            mongodb.removeUser(socket.username);
+            socket.leave(socket.roomId);
+            mongodb.removeUser(socket.name);
             //Delete room from mongodb if there are no more people inside
-            mongodb.getUsersFromRoom(socket.room, function(err, result){
+            mongodb.getUsersFromRoom(socket.roomId, function(err, result){
                if(err)
                    console.log(err);
                if(result.length === 0){
-                   mongodb.removeRoom(socket.room);
+                   mongodb.removeRoom(socket.roomId);
                }
             });
 
@@ -180,7 +179,7 @@ module.exports = function (app, io) {
         socket.on('msg', function (data) {
 
             // When the server receives a message, it sends it to the other person in the room.
-            socket.broadcast.to(socket.room).emit('receive', {msg: data.msg, user: data.user, img: data.img});
+            socket.broadcast.to(socket.roomId).emit('receive', {msg: data.msg, name: data.name, img: data.img});
         });
 
         socket.on('test', function (data) {
@@ -193,26 +192,6 @@ module.exports = function (app, io) {
     });
 };
 
-function findClientsSocket(io, roomId, namespace) {
-    var res = [],
-        // the default namespace is "/"
-        ns = io.of(namespace || "/");
-
-    if (ns) {
-        for (var id in ns.connected) {
-            if (roomId) {
-                var index = ns.connected[id].rooms.indexOf(roomId);
-                if (index !== -1) {
-                    res.push(ns.connected[id]);
-                }
-            }
-            else {
-                res.push(ns.connected[id]);
-            }
-        }
-    }
-    return res;
-}
 
 
 

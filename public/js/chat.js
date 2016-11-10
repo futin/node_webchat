@@ -2,7 +2,7 @@
 
 $(function () {
     // getting the id of the room from the url
-    var id = Number(window.location.pathname.match(/\/chat\/(\d+)$/)[1]);
+    var roomId = Number(window.location.pathname.match(/\/chat\/(\d+)$/)[1]);
 
     // connect to the socket
     var socket = io();
@@ -52,7 +52,7 @@ $(function () {
 
     // on connection to server get the id of person's room
     socket.on('connect', function () {
-        socket.emit('load', id);
+        socket.emit('load', roomId);
     });
 
     // save the gravatar url
@@ -85,7 +85,7 @@ $(function () {
                     showMessage("inviteSomebody");
 
                     // call the server-side function 'login' and send user's parameters
-                    socket.emit('login', {roomName: room, user: name, avatar: email, id: id});
+                    socket.emit('login', {roomId: roomId, roomName: room, name: name, email: email });
                 }
             });
         }
@@ -98,7 +98,7 @@ $(function () {
                     alert("Please enter a nick name longer than 1 character!");
                     return;
                 }
-                if (name == data.user) {
+                if (name == data.name) {
                     alert("There already is a \"" + name + "\" in this room!");
                     return;
                 }
@@ -107,29 +107,29 @@ $(function () {
                     alert("Wrong e-mail format!");
                 }
                 else {
-                    socket.emit('login', {roomName:data.roomName, user: name, avatar: email, id: id});
+                    socket.emit('login', {roomName:data.roomName, name: name, email: email, roomId: roomId});
                 }
             });
         }
     });
 
     socket.on('startChat', function (data) {
-        if (data.boolean && data.id == id) {
+        if (data.emitted && data.roomId == roomId) {
             //chats.empty();
-            if (name === data.users[0]) {
+            if (name === data.userNames[0]) {
                 showMessage("youStartedChatWithNoMessages", data);
             }
             else {
                 showMessage("heStartedChatWithNoMessages", data);
             }
-            if(data.users.length == 1){
+            if(data.userNames.length == 1){
                 chatNickname.text("nobody");
             }else{
                 others = [];
-                for ( var i in data.users){
-                    if (Object.prototype.hasOwnProperty.call(data.users, i) &&
-                        data.users[i] !== name) {
-                        others.push(data.users[i]);
+                for ( var i in data.userNames){
+                    if (Object.prototype.hasOwnProperty.call(data.userNames, i) &&
+                        data.userNames[i] !== name) {
+                        others.push(data.userNames[i]);
                     }
                 }
                 chatNickname.text(others);
@@ -138,30 +138,30 @@ $(function () {
     });
 
     socket.on('leave', function (data) {
-        if (data.boolean && id == data.room) {
+        if (data.emitted && roomId == data.roomId) {
             showMessage("somebodyLeft", data);
         }
     });
 
     socket.on('joined', function (data) {
-        if (data.boolean && id == data.room) {
+        if (data.emitted && roomId == data.roomId) {
             showMessage("joined", data);
         }
     });
 
     socket.on('receive', function (data) {
         if (data.msg.trim().length) {
-            createChatMessage(data.msg, data.user, data.img, moment());
+            createChatMessage(data.msg, data.name, data.img, moment());
             scrollToBottom();
         }
     });
 
     socket.on('isTyping', function (data) {
-       if(data.boolean){
+       if(data.emitted){
            if(timeout)
                clearTimeout(timeout);
            typeForm.css("display", "block");
-           typeName.text(data.user);
+           typeName.text(data.name);
            timeout = setTimeout(typingTimeout, 1500);
        }
     });
@@ -186,7 +186,7 @@ $(function () {
             scrollToBottom();
 
             // Send the message to the other person in the chat
-            socket.emit('msg', {msg: textarea.val(), user: name, img: img});
+            socket.emit('msg', {msg: textarea.val(), name: name, img: img});
         }
         // Empty the textarea
         textarea.val("");
@@ -268,7 +268,7 @@ $(function () {
             personInside.fadeIn(fadeTime);
 
             roomNickname.text(data.roomName);
-            ownerImage.attr("src", data.avatar);
+            ownerImage.attr("src", data.email);
         }
         else if (status === "youStartedChatWithNoMessages") {
 
@@ -279,21 +279,21 @@ $(function () {
                 });
             });
 
-            noMessagesImage.attr("src", data.avatars[1]);
+            noMessagesImage.attr("src", data.emails[1]);
         }
         else if (status === "heStartedChatWithNoMessages") {
             personInside.fadeOut(fadeTime, function () {
                 noMessages.fadeIn(fadeTime);
                 footer.fadeIn(fadeTime);
             });
-            noMessagesImage.attr("src", data.avatars[0]);
+            noMessagesImage.attr("src", data.emails[0]);
         }
         else if (status === "somebodyLeft") {
-                createChatMessage("Has left this room", data.user, data.avatar, moment());
+                createChatMessage("Has left this room", data.name, data.email, moment());
                 scrollToBottom();
 
             //
-            var index = others.indexOf(data.user);
+            var index = others.indexOf(data.name);
             if(index > -1)
                 others.splice(index, 1);
 
@@ -305,7 +305,7 @@ $(function () {
 
         }
         else if (status == "joined") {
-            createChatMessage(data.user.concat(" has joined this room. Say hello"), data.user, data.avatar, moment());
+            createChatMessage(data.name.concat(" has joined this room. Say hello"), data.name, data.email, moment());
             scrollToBottom();
         }
     }
