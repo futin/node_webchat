@@ -4,7 +4,7 @@
   "description": "Realtime chat system for Tutorialzine.com",
   "main": "app.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "node ./node_modules/mocha/bin/mocha",
     "start": "node app.js"
   },
   "keywords": [
@@ -23,6 +23,7 @@
     "socket.io": "1.0.6"
   },
   "devDependencies": {
-    "googleapis": "^14.1.0"
+    "googleapis": "^14.1.0",
+    "mocha": "^3.1.2"
   }
 }

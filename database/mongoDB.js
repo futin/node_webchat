@@ -22,16 +22,16 @@ function saveUser(myUser, cb) {
     myUser.save(function (err, user) {
         if (err)
             return cb(err);
-        return cb(null, user);
+        cb(null, user);
     });
 }
 
-function getAllUsers() {
-    User.find(function (err, users) {
+function getAllUsers(cb) {
+    User.find({},'roomId roomName name email', function (err, users) {
         if (err)
-            console.log('error getting users: ' + err);
+            return cb(err);
         console.log("These are all users: \n" + users);
-        return users;
+        cb(null, users);
     });
 }
 
@@ -42,20 +42,20 @@ function getUsersFromRoom(query, cb) {
             return cb(err);
         }
         console.log("users from room " + query + ": " + users);
-        return cb(null, users);
+        cb(null, users);
     });
 }
 
-function getUser(username) {
-    User.find({'name': username}, 'roomId name email', function (err, user) {
+function getUser(username, cb) {
+    User.find({'name': username}, 'roomId roomName name email', function (err, user) {
         if (err)
-            return console.log("Error occurred: " + err);
-        console.log("User with name " + username + ": " + users);
-        return users;
+            return cb(err);
+        console.log("User with name " + username + ": " + user);
+        cb(null, user);
     });
 }
 
-function removeUser(name){
+function removeUserName(name){
     User.find({'name': name}).remove(function (err, result) {
         if (err)
             return console.log(err);
@@ -63,7 +63,7 @@ function removeUser(name){
     });
 }
 
-function removeRoom(roomId) {
+function removeUserRoom(roomId) {
     User.find({'roomId': roomId}).remove(function (err, result) {
         if (err)
             return console.log(err);
@@ -85,7 +85,7 @@ module.exports = {
     getAllUsers: getAllUsers,
     getUsersFromRoom: getUsersFromRoom,
     getUser: getUser,
-    removeRoom: removeRoom,
+    removeUserRoom: removeUserRoom,
     removeAll: removeAll,
-    removeUser: removeUser
+    removeUserName: removeUserName
 };

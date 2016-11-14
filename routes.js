@@ -148,7 +148,7 @@ module.exports = function (app, io) {
 
             // leave the room
             socket.leave(socket.roomId);
-            mongodb.removeUser(socket.name);
+            mongodb.removeUserName(socket.name);
         });
 
         // Handle the sending of messages
