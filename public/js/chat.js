@@ -2,13 +2,13 @@
 
 $(function () {
     // getting the id of the room from the url
-    var roomId = Number(window.location.pathname.match(/\/chat\/(\d+)$/)[1]);
+    const roomId = Number(window.location.pathname.match(/\/chat\/(\d+)$/)[1]);
 
     // connect to the socket
-    var socket = io();
+    const socket = io();
 
     // variables which hold the data for each person
-    var name = "",
+    let name = "",
         email = "",
         img = "",
         room = "",
@@ -17,7 +17,7 @@ $(function () {
         fadeTime = 200;
 
     // cache some jQuery objects
-    var section = $(".section"),
+    let section = $(".section"),
         footer = $("footer"),
         onConnect = $(".connected"),
         inviteSomebody = $(".invite-textfield"),
@@ -27,7 +27,7 @@ $(function () {
         noMessages = $(".nomessages")
 
     // some more jquery objects
-    var chatNickname = $(".nickname-chat"),
+    let chatNickname = $(".nickname-chat"),
         roomNickname = $(".nickname-chat-room"),
         uploadForm = $("#uploadForm"),
         loginForm = $(".loginForm"),
@@ -44,7 +44,7 @@ $(function () {
         typeName = $(".typing-person");
 
     // these variables hold images
-    var ownerImage = $("#ownerImage"),
+    let ownerImage = $("#ownerImage"),
         leftImage = $("#leftImage"),
         noMessagesImage = $("#noMessagesImage"),
         creatorImage = $("#creatorImage");
@@ -97,7 +97,7 @@ $(function () {
                     return;
                 }
                 if (name == data.name) {
-                    alert("There already is a \"" + name + "\" in this room!");
+                    alert(`There already is a ${name} in this room!`);
                     return;
                 }
                 email = hisEmail.val();
@@ -193,20 +193,20 @@ $(function () {
     // Update the relative time stamps on the chat messages every minute
     setInterval(function () {
         messageTimeSent.each(function () {
-            var each = moment($(this).data('time'));
+            let each = moment($(this).data('time'));
             $(this).text(each.fromNow());
         });
     }, 60000);
 
     // Function that creates a new chat message
     function createChatMessage(msg, user, imgg, now) {
-        var who = '';
+        let who = '';
         if (user === name) {
             who = 'me';
         }else {
             who = 'you';
         }
-        var li = $(
+        let li = $(
             '<li class=' + who + '>' +
             '<div class="image">' +
             '<img src=' + imgg + ' />' +
@@ -227,12 +227,12 @@ $(function () {
     }
 
     function scrollToBottom() {
-        $("html, body").animate({scrollTop: $(document).height() - $(window).height()}, fadeTime);
+        $("html, body").animate({scrollTop: $(document).height() - $(window).height()}, 800);
     }
 
     function isValid(thatemail) {
 
-        var re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+        let re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
         return re.test(thatemail);
     }
 
@@ -281,7 +281,7 @@ $(function () {
                 createChatMessage("Has left this room", data.name, data.email, moment());
                 scrollToBottom();
 
-            var index = others.indexOf(data.name);
+            let index = others.indexOf(data.name);
             if(index > -1)
                 others.splice(index, 1);
 

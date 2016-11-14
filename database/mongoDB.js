@@ -1,22 +1,22 @@
-var mongoose = require('mongoose'),
+const mongoose = require('mongoose'),
     Schema = mongoose.Schema;
 
 mongoose.connect('mongodb://localhost/web-chat');
 
-var db = mongoose.connection;
+const db = mongoose.connection;
 db.on('error', console.error.bind(console, 'connection error:'));
 db.once('open', function () {
     console.log("we are connected!");
 });
 
-var userSchema = new Schema({
+const userSchema = new Schema({
     roomId: String,
     roomName: String,
     name: String,
     email: String
 });
 
-var User = mongoose.model('newUser', userSchema);
+const User = mongoose.model('newUser', userSchema);
 
 function saveUser(myUser, cb) {
     myUser.save(function (err, user) {

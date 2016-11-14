@@ -4,10 +4,10 @@
 
 // Use the gravatar module, to turn email addresses into avatar images:
 
-var gravatar = require('gravatar');
-var handler = require('./myhandlers/imageHandler');
-var mongodb = require('./database/mongoDB');
-var User = mongodb.User;
+const gravatar = require('gravatar');
+//const handler = require('./myhandlers/imageHandler');
+const mongodb = require('./database/mongoDB');
+let User = mongodb.User;
 
 // Export a function, so that we can pass 
 // the app and io instances from the app.js file:
@@ -22,7 +22,7 @@ module.exports = function (app, io) {
     app.get('/create', function (req, res) {
 
         // Generate unique id for the room
-        var id = Math.round((Math.random() * 1000000));
+        let id = Math.round((Math.random() * 1000000));
 
         // Redirect to the random room
         res.redirect('/chat/' + id);
@@ -35,7 +35,7 @@ module.exports = function (app, io) {
     });
 
     // Initialize a new socket.io application, named 'chat'
-    var chat = io.on('connection', function (socket) {
+    let chat = io.on('connection', function (socket) {
 
         // When the client emits the 'load' event, reply with the
         // number of people in this chat room
@@ -85,7 +85,7 @@ module.exports = function (app, io) {
             });
 
             //add user to database
-            var user = new User({
+            let user = new User({
                 roomId: this.roomId,
                 roomName: this.roomName,
                 name: this.name,
@@ -101,7 +101,7 @@ module.exports = function (app, io) {
                         if (err) {
                             console.log(err);
                         } else {
-                            var userNames = [],
+                            let userNames = [],
                                 emails = [];
                             for (var i in users) {
                                 if (Object.prototype.hasOwnProperty.call(users, i)) {
@@ -149,14 +149,6 @@ module.exports = function (app, io) {
             // leave the room
             socket.leave(socket.roomId);
             mongodb.removeUser(socket.name);
-            //Delete room from mongodb if there are no more people inside
-            mongodb.getUsersFromRoom(socket.roomId, function (err, result) {
-                if (err)
-                    console.log(err);
-                if (result.length === 0) {
-                    mongodb.removeRoom(socket.roomId);
-                }
-            });
         });
 
         // Handle the sending of messages
