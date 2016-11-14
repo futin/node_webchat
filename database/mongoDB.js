@@ -1,7 +1,7 @@
 const mongoose = require('mongoose'),
     Schema = mongoose.Schema;
 
-mongoose.connect('mongodb://localhost/web-chat');
+mongoose.connect('mongodb://futin:password@ds029665.mlab.com:29665/futinsdatabase/');
 
 const db = mongoose.connection;
 db.on('error', console.error.bind(console, 'connection error:'));
