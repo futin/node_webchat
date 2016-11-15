@@ -42,7 +42,10 @@ function getUsersFromRoom(query, cb) {
             console.log("Error occurred: " + err);
             return cb(err);
         }
-        console.log("users from room " + query + ": " + users);
+        if(users.length === 0)
+            console.log(`no users in room ${query}`);
+        else
+            console.log(`users from room ${query}: ${users}`);
         cb(null, users);
     });
 }
