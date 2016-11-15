@@ -36,6 +36,7 @@ module.exports = function (app, io) {
 
     // Initialize a new socket.io application, named 'chat'
     let chat = io.on('connection', function (socket) {
+        console.log("connection!");
 
         // When the client emits the 'load' event, reply with the
         // number of people in this chat room
