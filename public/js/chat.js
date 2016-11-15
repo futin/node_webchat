@@ -248,12 +248,8 @@ $(function () {
             onConnect.fadeIn(fadeTime);
         }else if (status === "inviteSomebody") {
 
-            // Set the invite link content
-            $("#link").text(window.location.href);
 
-            onConnect.fadeOut(fadeTime, function () {
-                inviteSomebody.fadeIn(fadeTime);
-            });
+            onConnect.fadeOut(fadeTime);
         }else if (status === "personinchat") {
 
             onConnect.css("display", "none");
@@ -262,13 +258,15 @@ $(function () {
             roomNickname.text(data.roomName);
             ownerImage.attr("src", data.email);
         }else if (status === "youStartedChatWithNoMessages") {
-
-            left.fadeOut(fadeTime, function () {
-                inviteSomebody.fadeOut(fadeTime, function () {
-                    noMessages.fadeIn(fadeTime);
-                    footer.fadeIn(fadeTime);
-                });
-            });
+            if(data.userNames && data.userNames.length == 1){
+                // Set the invite link content
+                $("#link").text(window.location.href);
+                inviteSomebody.fadeIn(fadeTime);
+            }else{
+                inviteSomebody.fadeOut(fadeTime);
+            }
+            noMessages.fadeIn(fadeTime);
+            footer.fadeIn(fadeTime);
 
             noMessagesImage.attr("src", data.emails[1]);
         }else if (status === "heStartedChatWithNoMessages") {
@@ -289,6 +287,9 @@ $(function () {
                 chatNickname.text(others);
             }else{
                 chatNickname.text("nobody");
+                // Set the invite link content
+                $("#link").text(window.location.href);
+                inviteSomebody.fadeIn(fadeTime);
             }
         }else if (status == "joined") {
             createChatMessage(data.name.concat(" has joined this room. Say hello"), data.name, data.email, moment());
