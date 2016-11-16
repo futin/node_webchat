@@ -98,8 +98,7 @@ module.exports = function (app, io) {
             });
         });
 
-        socket.on('changeName', (data) => {
-            "use strict";
+        socket.on('updateName', (data) => {
             mongodb.updateUser({name: socket.name, roomId: socket.roomId}, data.name, (err, user) => {
                 if (err)
                     return console.log(err);
@@ -112,7 +111,7 @@ module.exports = function (app, io) {
                         let emails = getUserNamesAndMails(users).emails;
 
                         console.log(`new user saved with name: ${user.name}`);
-                        socket.broadcast.to(socket.roomId).emit('test', {
+                        socket.broadcast.to(socket.roomId).emit('updateOthers', {
                             emitted: true,
                             userNames: userNames,
                             emails: emails

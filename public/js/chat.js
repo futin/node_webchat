@@ -40,7 +40,6 @@ $(function () {
         textarea = $("#message"),
         messageTimeSent = $(".timesent"),
         chats = $(".chats"),
-        chatText = $("#chat"),
         typeForm = $("#typingID"),
         typeName = $(".typing-person");
 
@@ -113,12 +112,7 @@ $(function () {
 
     socket.on('startChat', function (data) {
         if (data.emitted && data.roomId == roomId) {
-            if (name === data.userNames[0 ]) {
-                showMessage("youStartedChat", data);
-            } else {
-                showMessage("heStartedChat", data);
-            }
-            showMessage("listOfPeople", data);
+            showMessage("startChat", data);
         }
     });
 
@@ -151,7 +145,7 @@ $(function () {
         }
     });
 
-    socket.on('test', function(data) {
+    socket.on('updateOthers', function(data) {
         if(data.emitted){
             setOthers(data);
         }
@@ -179,7 +173,10 @@ $(function () {
                 } else if (textarea.val().indexOf('ch:name=') > -1) {
                     let txt = "ch:name=";
                     let updateName = textarea.val().substring(txt.length+1, textarea.val().length);
-                    socket.emit('changeName', {name: updateName});
+                    socket.emit('updateName', {name: updateName});
+
+                    //we must update our local name as well, so we can use it for
+                    //comparing in later functions
                     name = updateName;
                 }
             } else {
@@ -248,10 +245,10 @@ $(function () {
     }
 
 
-    function removeFromArray(data){
-        let index = others.indexOf(data);
+    function removeFromArray(array, data){
+        let index = array.indexOf(data);
         if (index > -1)
-            others.splice(index, 1);
+            array.splice(index, 1);
     }
 
     function setOthers(data){
@@ -283,30 +280,28 @@ $(function () {
             roomNickname.text(data.roomName);
             ownerImage.attr("src", data.email);
 
-        } else if (status === "youStartedChat") {
+        } else if (status === "startChat") {
             if (data.userNames && data.userNames.length == 1) {
+
                 // Set the invite link content
                 $("#link").text(window.location.href);
                 inviteSomebody.fadeIn(fadeTime);
+                chatNickname.text("nobody");
             } else {
-                inviteSomebody.fadeOut(fadeTime);
+                personInside.fadeOut(fadeTime, function () {
+                    inviteSomebody.fadeOut(fadeTime);
+                    setOthers(data);
+                });
             }
             noMessages.fadeIn(fadeTime);
             footer.fadeIn(fadeTime);
             noMessagesImage.attr("src", data.emails[1]);
 
-        } else if (status === "heStartedChat") {
-            personInside.fadeOut(fadeTime, function () {
-                noMessages.fadeIn(fadeTime);
-                footer.fadeIn(fadeTime);
-            });
-            noMessagesImage.attr("src", data.emails[0]);
-
         } else if (status === "somebodyLeft") {
             createChatMessage(`${data.name} has left this room`, data.name, data.email, moment());
             scrollToBottom();
 
-            removeFromArray(data.name);
+            removeFromArray(others, data.name);
 
             if (others.length > 0) {
                 chatNickname.text(others);
@@ -320,9 +315,7 @@ $(function () {
 
         } else if (status == "listOfPeople") {
             if (data.userNames.length == 1) {
-                chatNickname.text("nobody");
             } else {
-                setOthers(data);
             }
         }
     }

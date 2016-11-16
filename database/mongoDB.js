@@ -36,7 +36,6 @@ function saveUser(myUser, cb) {
 }
 
 function updateUser(myUser, newName, cb){
-    "use strict";
     User.findOne({ 'name': myUser.name, 'roomId': myUser.roomId}, function (err, user){
         if(err)
             return cb(err);
