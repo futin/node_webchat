@@ -7,7 +7,6 @@
 const gravatar = require('gravatar');
 //const handler = require('./myhandlers/imageHandler');
 const mongodb = require('./database/mongoDB');
-let User = mongodb.User;
 
 // Export a function, so that we can pass 
 // the app and io instances from the app.js file:
@@ -46,9 +45,9 @@ module.exports = function (app, io) {
                     return;
                 }
                 if (result.length === 0) {
-                    socket.emit('peopleinchat', {number: 0});
+                    socket.emit('peopleInChat', {number: 0});
                 } else {
-                    socket.emit('peopleinchat', {
+                    socket.emit('peopleInChat', {
                         number: result.length,
                         roomId: result[result.length - 1].roomId,
                         roomName: result[result.length - 1].roomName,
@@ -85,44 +84,9 @@ module.exports = function (app, io) {
             });
 
             //add user to database
-            let user = new User({
-                roomId: this.roomId,
-                roomName: this.roomName,
-                name: this.name,
-                email: this.email
-            });
+            let user = mongodb.createUser(this.roomId, this.roomName, this.name, this.email);
 
-            mongodb.saveUser(user, function (err, user) {
-                if (err) {
-                    console.log(err);
-                } else {
-                    console.log(user.name + " is saved");
-                    mongodb.getUsersFromRoom(data.roomId, function (err, users) {
-                        if (err) {
-                            console.log(err);
-                        } else {
-                            let userNames = [],
-                                emails = [];
-                            for (var i in users) {
-                                if (Object.prototype.hasOwnProperty.call(users, i)) {
-                                    userNames.push(users[i].name);
-                                    emails.push(users[i].email);
-                                }
-                            }
-
-                            // Send the startChat event to all the people in the
-                            // room, along with a list of people that are in it.
-                            chat.in(data.roomId).emit('startChat', {
-                                emitted: true,
-                                roomId: data.roomId,
-                                roomName: data.roomName,
-                                userNames: userNames,
-                                emails: emails
-                            });
-                        }
-                    });
-                }
-            });
+            saveUser(user, data, chat);
         });
 
         socket.on('type', function () {
@@ -131,6 +95,30 @@ module.exports = function (app, io) {
                 roomId: this.roomId,
                 name: this.name,
                 email: this.email
+            });
+        });
+
+        socket.on('changeName', (data) => {
+            "use strict";
+            mongodb.updateUser({name: socket.name, roomId: socket.roomId}, data.name, (err, user) => {
+                if (err)
+                    return console.log(err);
+                socket.name = data.name;
+                mongodb.getUsersFromRoom(socket.roomId, function (err, users) {
+                    if (err) {
+                        console.log(err);
+                    } else {
+                        let userNames = getUserNamesAndMails(users).userNames;
+                        let emails = getUserNamesAndMails(users).emails;
+
+                        console.log(`new user saved with name: ${user.name}`);
+                        socket.broadcast.to(socket.roomId).emit('test', {
+                            emitted: true,
+                            userNames: userNames,
+                            emails: emails
+                        });
+                    }
+                });
             });
         });
 
@@ -160,6 +148,45 @@ module.exports = function (app, io) {
     });
 };
 
+function getUserNamesAndMails(users) {
+    let userNames = [],
+        emails = [];
+    for (var i in users) {
+        if (Object.prototype.hasOwnProperty.call(users, i)) {
+            userNames.push(users[i].name);
+            emails.push(users[i].email);
+        }
+    }
+    return {userNames: userNames, emails: emails};
+}
+
+function saveUser(user, data, chat) {
+    mongodb.saveUser(user, function (err, user) {
+        if (err) {
+            console.log(err);
+        } else {
+            console.log(`Saved user: ${user.name}`);
+            mongodb.getUsersFromRoom(data.roomId, function (err, users) {
+                if (err) {
+                    console.log(err);
+                } else {
+                    let userNames = getUserNamesAndMails(users).userNames;
+                    let emails = getUserNamesAndMails(users).emails;
+
+                    // Send the startChat event to all the people in the
+                    // room, along with a list of people that are in it.
+                    chat.in(data.roomId).emit('startChat', {
+                        emitted: true,
+                        roomId: data.roomId,
+                        roomName: data.roomName,
+                        userNames: userNames,
+                        emails: emails
+                    });
+                }
+            });
+        }
+    });
+}
 
 
 
