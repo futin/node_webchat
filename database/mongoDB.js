@@ -1,6 +1,6 @@
 const mongoose = require('mongoose'),
     Schema = mongoose.Schema;
-var uri = 'mongodb://admin:admin@ds029665.mlab.com:29665/futinsdatabase';
+let uri = 'mongodb://admin:admin@ds029665.mlab.com:29665/futinsdatabase';
 mongoose.connect(uri);
 
 const db = mongoose.connection;
@@ -35,25 +35,39 @@ function saveUser(myUser, cb) {
     });
 }
 
-function updateUser(myUser, newName, cb){
-    User.findOne({ 'name': myUser.name, 'roomId': myUser.roomId}, function (err, user){
-        if(err)
+function updateUser(myUser, newName, cb) {
+    User.findOne({'name': myUser.name, 'roomId': myUser.roomId}, function (err, user) {
+        if (err)
             return cb(err);
-        if(!user){
+        if (!user) {
             return console.log(`User does not exist`);
         }
-        user.name = newName;
-        console.log("changed:", user);
-        user.save(function(err, user){
-            if(err)
-                return cb(err);
-            cb(null, user);
+        getUsersFromRoom(user.roomId, (err, users) => {
+            let nameExist = false;
+            for (var i in users) {
+                if (Object.prototype.hasOwnProperty.call(users, i)) {
+                    if (users[i].name.indexOf(newName) > -1) {
+                        nameExist = true;
+                    }
+                }
+            }
+            if (!nameExist) {
+                user.name = newName;
+                user.save(function (err, user) {
+                    if (err)
+                        return cb(err);
+                    cb(null, user);
+
+                });
+            }else{
+                cb(null);
+            }
         });
     });
 }
 
 function getAllUsers(cb) {
-    User.find({},'roomId roomName name email', function (err, users) {
+    User.find({}, 'roomId roomName name email', function (err, users) {
         if (err)
             return cb(err);
         console.log(`These are all users: \n ${users}`);
@@ -67,7 +81,7 @@ function getUsersFromRoom(query, cb) {
             console.log(`Error occurred: ${err}`);
             return cb(err);
         }
-        if(users.length === 0)
+        if (users.length === 0)
             console.log(`no users in room ${query}`);
         else
             console.log(`users from room ${query}: ${users}`);
@@ -84,7 +98,7 @@ function getUser(username, cb) {
     });
 }
 
-function removeUserName(name){
+function removeUserName(name) {
     User.find({'name': name}).remove(function (err, result) {
         if (err)
             return console.log(err);
@@ -109,7 +123,7 @@ function removeAll() {
 }
 
 module.exports = {
-    createUser:createUser,
+    createUser: createUser,
     saveUser: saveUser,
     updateUser: updateUser,
     getAllUsers: getAllUsers,

@@ -77,7 +77,7 @@ module.exports = function (app, io) {
 
             //let everybody know that you are in the room
             socket.broadcast.to(this.roomId).emit('joined', {
-                emitted: true,
+                result: true,
                 roomId: this.roomId,
                 name: this.name,
                 email: this.email
@@ -91,7 +91,7 @@ module.exports = function (app, io) {
 
         socket.on('type', function () {
             socket.broadcast.to(this.roomId).emit('isTyping', {
-                emitted: true,
+                result: true,
                 roomId: this.roomId,
                 name: this.name,
                 email: this.email
@@ -102,22 +102,28 @@ module.exports = function (app, io) {
             mongodb.updateUser({name: socket.name, roomId: socket.roomId}, data.name, (err, user) => {
                 if (err)
                     return console.log(err);
-                socket.name = data.name;
-                mongodb.getUsersFromRoom(socket.roomId, function (err, users) {
-                    if (err) {
-                        console.log(err);
-                    } else {
-                        let userNames = getUserNamesAndMails(users).userNames;
-                        let emails = getUserNamesAndMails(users).emails;
+                if(user) {
+                    mongodb.getUsersFromRoom(socket.roomId, function (err, users) {
+                        if (err) {
+                            console.log(err);
+                        } else {
+                            let userNames = getUserNamesAndMails(users).userNames;
+                            let emails = getUserNamesAndMails(users).emails;
 
-                        console.log(`new user saved with name: ${user.name}`);
-                        socket.broadcast.to(socket.roomId).emit('updateOthers', {
-                            emitted: true,
-                            userNames: userNames,
-                            emails: emails
-                        });
-                    }
-                });
+                            console.log(`User ${socket.name} has changed his name into: ${user.name}`);
+                            socket.name = user.name;
+                            socket.emit('changedName', {result: true, roomId: socket.roomId, name: user.name});
+                            socket.broadcast.to(socket.roomId).emit('updateOthers', {
+                                result: true,
+                                userNames: userNames,
+                                emails: emails
+                            });
+                        }
+                    });
+                }else{
+                    console.log("User exist");
+                    socket.emit('changedName', {result: false});
+                }
             });
         });
 
@@ -127,7 +133,7 @@ module.exports = function (app, io) {
             // Notify the other person in the chat room
             // that his partner has left
             socket.broadcast.to(this.roomId).emit('leave', {
-                emitted: true,
+                result: true,
                 roomId: this.roomId,
                 name: this.name,
                 email: this.email
@@ -175,7 +181,7 @@ function saveUser(user, data, chat) {
                     // Send the startChat event to all the people in the
                     // room, along with a list of people that are in it.
                     chat.in(data.roomId).emit('startChat', {
-                        emitted: true,
+                        result: true,
                         roomId: data.roomId,
                         roomName: data.roomName,
                         userNames: userNames,

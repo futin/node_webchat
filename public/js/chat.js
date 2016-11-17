@@ -58,6 +58,7 @@ $(function () {
     socket.on('img', function (data) {
         img = data;
     });
+
     // receive the names and avatars of all people in the chat room
     socket.on('peopleInChat', function (data) {
         if (data.number === 0) {
@@ -86,8 +87,7 @@ $(function () {
                     socket.emit('login', {roomId: roomId, roomName: room, name: name, email: email});
                 }
             });
-        }
-        else {
+        } else {
             showMessage("personInChat", data);
             loginForm.on('submit', function (e) {
                 e.preventDefault();
@@ -111,19 +111,19 @@ $(function () {
     });
 
     socket.on('startChat', function (data) {
-        if (data.emitted && data.roomId == roomId) {
+        if (data.result && data.roomId == roomId) {
             showMessage("startChat", data);
         }
     });
 
     socket.on('leave', function (data) {
-        if (data.emitted && roomId == data.roomId) {
+        if (data.result && roomId == data.roomId) {
             showMessage("somebodyLeft", data);
         }
     });
 
     socket.on('joined', function (data) {
-        if (data.emitted && roomId == data.roomId) {
+        if (data.result && roomId == data.roomId) {
             showMessage("joined", data);
         }
     });
@@ -136,7 +136,7 @@ $(function () {
     });
 
     socket.on('isTyping', function (data) {
-        if (data.emitted) {
+        if (data.result) {
             if (timeout)
                 clearTimeout(timeout);
             typeForm.css("display", "block");
@@ -145,9 +145,18 @@ $(function () {
         }
     });
 
-    socket.on('updateOthers', function(data) {
-        if(data.emitted){
+    socket.on('updateOthers', function (data) {
+        if (data.result) {
             setOthers(data);
+        }
+    });
+
+    socket.on('changedName', function (data) {
+        if (data.result && roomId === data.roomId) {
+            name = data.name;
+            alert(`Name changed successfully into ${name}`);
+        } else {
+            alert(`Something went wrong`);
         }
     });
 
@@ -172,12 +181,8 @@ $(function () {
                     chats.empty();
                 } else if (textarea.val().indexOf('ch:name=') > -1) {
                     let txt = "ch:name=";
-                    let updateName = textarea.val().substring(txt.length+1, textarea.val().length);
+                    let updateName = textarea.val().substring(txt.length + 1, textarea.val().length);
                     socket.emit('updateName', {name: updateName});
-
-                    //we must update our local name as well, so we can use it for
-                    //comparing in later functions
-                    name = updateName;
                 }
             } else {
                 createChatMessage(textarea.val(), name, img, moment());
@@ -190,6 +195,7 @@ $(function () {
         // Empty the textarea
         textarea.val("");
     });
+
     uploadForm.on('submit', function (e) {
         e.preventDefault();
     });
@@ -244,14 +250,13 @@ $(function () {
         typeForm.css("display", "none");
     }
 
-
-    function removeFromArray(array, data){
+    function removeFromArray(array, data) {
         let index = array.indexOf(data);
         if (index > -1)
             array.splice(index, 1);
     }
 
-    function setOthers(data){
+    function setOthers(data) {
         others = [];
         for (var i in data.userNames) {
             if (Object.prototype.hasOwnProperty.call(data.userNames, i) &&
@@ -264,59 +269,53 @@ $(function () {
 
     function showMessage(status, data) {
         chatScreen.css('display', 'block');
-        if (status === "connected") {
+        switch (status) {
+            case 'connected':
+                onConnect.fadeIn(fadeTime);
+                break;
+            case 'personInChat':
+                onConnect.css("display", "none");
+                personInside.fadeIn(fadeTime);
 
-            //section.children().css('display', 'none');
-            onConnect.fadeIn(fadeTime);
+                roomNickname.text(data.roomName);
+                ownerImage.attr("src", data.email);
+                break;
+            case 'inviteSomebody':
+                onConnect.fadeOut(fadeTime);
+                break;
+            case 'startChat':
+                if (data.userNames && data.userNames.length == 1) {
 
-        } else if (status === "inviteSomebody") {
-            onConnect.fadeOut(fadeTime);
+                    // Set the invite link content
+                    $("#link").text(window.location.href);
+                    inviteSomebody.fadeIn(fadeTime);
+                    chatNickname.text("nobody");
+                } else {
+                    personInside.fadeOut(fadeTime, function () {
+                        inviteSomebody.fadeOut(fadeTime);
+                        setOthers(data);
+                    });
+                }
+                noMessages.fadeIn(fadeTime);
+                footer.fadeIn(fadeTime);
+                noMessagesImage.attr("src", data.emails[1]);
+                break;
+            case 'somebodyLeft':
+                createChatMessage(`${data.name} has left this room`, data.name, data.email, moment());
+                scrollToBottom();
 
-        } else if (status === "personInChat") {
+                removeFromArray(others, data.name);
 
-            onConnect.css("display", "none");
-            personInside.fadeIn(fadeTime);
-
-            roomNickname.text(data.roomName);
-            ownerImage.attr("src", data.email);
-
-        } else if (status === "startChat") {
-            if (data.userNames && data.userNames.length == 1) {
-
-                // Set the invite link content
-                $("#link").text(window.location.href);
-                inviteSomebody.fadeIn(fadeTime);
-                chatNickname.text("nobody");
-            } else {
-                personInside.fadeOut(fadeTime, function () {
-                    inviteSomebody.fadeOut(fadeTime);
-                    setOthers(data);
-                });
-            }
-            noMessages.fadeIn(fadeTime);
-            footer.fadeIn(fadeTime);
-            noMessagesImage.attr("src", data.emails[1]);
-
-        } else if (status === "somebodyLeft") {
-            createChatMessage(`${data.name} has left this room`, data.name, data.email, moment());
-            scrollToBottom();
-
-            removeFromArray(others, data.name);
-
-            if (others.length > 0) {
-                chatNickname.text(others);
-            } else {
-                chatNickname.text("nobody");
-            }
-
-        } else if (status == "joined") {
-            createChatMessage(data.name.concat(" has joined this room. Say hello"), data.name, data.email, moment());
-            scrollToBottom();
-
-        } else if (status == "listOfPeople") {
-            if (data.userNames.length == 1) {
-            } else {
-            }
+                if (others.length > 0) {
+                    chatNickname.text(others);
+                } else {
+                    chatNickname.text("nobody");
+                }
+                break;
+            case 'joined':
+                createChatMessage(data.name.concat(" has joined this room. Say hello"), data.name, data.email, moment());
+                scrollToBottom();
+                break;
         }
     }
 });
