@@ -1,11 +1,13 @@
 // This file is executed in the browser, when people visit /chat/<random id>
-
 $(function () {
     // getting the id of the room from the url
     const roomId = Number(window.location.pathname.match(/\/chat\/(\d+)$/)[1]);
-
     // connect to the socket
     const socket = io();
+
+    //we are using this util script for socket listener names
+    const socketListener = utils.socketListener;
+    const showMessageString = utils.showMessage;
 
     // variables which hold the data for each person
     let name = "",
@@ -51,18 +53,18 @@ $(function () {
 
     // on connection to server get the id of person's room
     socket.on('connect', function () {
-        socket.emit('load', roomId);
+        socket.emit(socketListener.load, roomId);
     });
 
     // save the gravatar url
-    socket.on('img', function (data) {
+    socket.on(socketListener.img, function (data) {
         img = data;
     });
 
     // receive the names and avatars of all people in the chat room
-    socket.on('peopleInChat', function (data) {
+    socket.on(socketListener.peopleInChat, function (data) {
         if (data.number === 0) {
-            showMessage("connected");
+            showMessage(showMessageString.connected);
 
             loginForm.on('submit', function (e) {
                 e.preventDefault();
@@ -81,14 +83,14 @@ $(function () {
                 if (!isValid(email)) {
                     alert("Please enter a valid email!");
                 } else {
-                    showMessage("inviteSomebody");
+                    showMessage(showMessageString.inviteSomebody);
 
                     // call the server-side function 'login' and send user's parameters
-                    socket.emit('login', {roomId: roomId, roomName: room, name: name, email: email});
+                    socket.emit(socketListener.login, {roomId: roomId, roomName: room, name: name, email: email});
                 }
             });
         } else {
-            showMessage("personInChat", data);
+            showMessage(showMessageString.personInChat, data);
             loginForm.on('submit', function (e) {
                 e.preventDefault();
                 name = $.trim(hisName.val());
@@ -104,38 +106,38 @@ $(function () {
                 if (!isValid(email)) {
                     alert("Wrong e-mail format!");
                 } else {
-                    socket.emit('login', {roomName: data.roomName, name: name, email: email, roomId: roomId});
+                    socket.emit(socketListener.login, {roomName: data.roomName, name: name, email: email, roomId: roomId});
                 }
             });
         }
     });
 
-    socket.on('startChat', function (data) {
+    socket.on(socketListener.startChat, function (data) {
         if (data.result && data.roomId == roomId) {
-            showMessage("startChat", data);
+            showMessage(showMessageString.startChat, data);
         }
     });
 
-    socket.on('leave', function (data) {
+    socket.on(socketListener.somebodyLeft, function (data) {
         if (data.result && roomId == data.roomId) {
-            showMessage("somebodyLeft", data);
+            showMessage(showMessageString.somebodyLeft, data);
         }
     });
 
-    socket.on('joined', function (data) {
+    socket.on(socketListener.somebodyJoined, function (data) {
         if (data.result && roomId == data.roomId) {
-            showMessage("joined", data);
+            showMessage(showMessageString.somebodyJoined, data);
         }
     });
 
-    socket.on('receive', function (data) {
+    socket.on(socketListener.receive, function (data) {
         if (data.msg.trim().length) {
             createChatMessage(data.msg, data.name, data.img, moment());
             scrollToBottom();
         }
     });
 
-    socket.on('isTyping', function (data) {
+    socket.on(socketListener.isTyping, function (data) {
         if (data.result) {
             if (timeout)
                 clearTimeout(timeout);
@@ -145,13 +147,13 @@ $(function () {
         }
     });
 
-    socket.on('updateOthers', function (data) {
+    socket.on(socketListener.updateOthers, function (data) {
         if (data.result) {
             setOthers(data);
         }
     });
 
-    socket.on('changedName', function (data) {
+    socket.on(socketListener.changedName, function (data) {
         if (data.result && roomId === data.roomId) {
             name = data.name;
             alert(`Name changed successfully into ${name}`);
@@ -167,7 +169,7 @@ $(function () {
             e.preventDefault();
             chatForm.trigger('submit');
         } else {
-            socket.emit('type');
+            socket.emit(socketListener.type);
         }
     });
 
@@ -182,14 +184,14 @@ $(function () {
                 } else if (textarea.val().indexOf('ch:name=') > -1) {
                     let txt = "ch:name=";
                     let updateName = textarea.val().substring(txt.length + 1, textarea.val().length);
-                    socket.emit('updateName', {name: updateName});
+                    socket.emit(socketListener.updateName, {name: updateName});
                 }
             } else {
                 createChatMessage(textarea.val(), name, img, moment());
                 scrollToBottom();
 
                 // Send the message to the other person in the chat
-                socket.emit('msg', {msg: textarea.val(), name: name, img: img});
+                socket.emit(socketListener.msg, {msg: textarea.val(), name: name, img: img});
             }
         }
         // Empty the textarea
@@ -270,20 +272,20 @@ $(function () {
     function showMessage(status, data) {
         chatScreen.css('display', 'block');
         switch (status) {
-            case 'connected':
+            case showMessageString.connected:
                 onConnect.fadeIn(fadeTime);
                 break;
-            case 'personInChat':
+            case showMessageString.personInChat:
                 onConnect.css("display", "none");
                 personInside.fadeIn(fadeTime);
 
                 roomNickname.text(data.roomName);
                 ownerImage.attr("src", data.email);
                 break;
-            case 'inviteSomebody':
+            case showMessageString.inviteSomebody:
                 onConnect.fadeOut(fadeTime);
                 break;
-            case 'startChat':
+            case showMessageString.startChat:
                 if (data.userNames && data.userNames.length == 1) {
 
                     // Set the invite link content
@@ -300,7 +302,7 @@ $(function () {
                 footer.fadeIn(fadeTime);
                 noMessagesImage.attr("src", data.emails[1]);
                 break;
-            case 'somebodyLeft':
+            case showMessageString.somebodyLeft:
                 createChatMessage(`${data.name} has left this room`, data.name, data.email, moment());
                 scrollToBottom();
 
@@ -312,8 +314,8 @@ $(function () {
                     chatNickname.text("nobody");
                 }
                 break;
-            case 'joined':
-                createChatMessage(data.name.concat(" has joined this room. Say hello"), data.name, data.email, moment());
+            case showMessageString.somebodyJoined:
+                createChatMessage(`${data.name} has joined this room. Say hello`, data.name, data.email, moment());
                 scrollToBottom();
                 break;
         }

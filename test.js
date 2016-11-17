@@ -9,7 +9,6 @@ let user = new User({
 });
 
 describe('test saving user', () => {
-    "use strict";
     it('Should save user', (done) => {
         db.saveUser(user, (err, user) => {
             if (err) {
@@ -25,7 +24,6 @@ describe('test saving user', () => {
 });
 
 describe('test removing user', () => {
-    "use strict";
     it('Should remove user', (done) => {
         db.removeAll();
         done();

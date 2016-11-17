@@ -1,6 +1,7 @@
 const mongoose = require('mongoose'),
-    Schema = mongoose.Schema;
-let uri = 'mongodb://admin:admin@ds029665.mlab.com:29665/futinsdatabase';
+      Schema = mongoose.Schema,
+      uri = require('../public/js/utils').utils.mongoDB.loadUri;
+
 mongoose.connect(uri);
 
 const db = mongoose.connection;
@@ -16,7 +17,7 @@ const userSchema = new Schema({
     email: String
 });
 
-const User = mongoose.model('newUser', userSchema);
+const User = mongoose.model('user', userSchema);
 
 function createUser(roomId, roomName, name, email) {
     return new User({
@@ -81,10 +82,14 @@ function getUsersFromRoom(query, cb) {
             console.log(`Error occurred: ${err}`);
             return cb(err);
         }
-        if (users.length === 0)
-            console.log(`no users in room ${query}`);
-        else
-            console.log(`users from room ${query}: ${users}`);
+        if (users.length === 0) {
+            console.log(`No users in room ${query}`);
+        } else {
+            console.log(`Users from room ${query}:`);
+            users.forEach( user =>{
+                console.log(`- ${user.name}`);
+            });
+        }
         cb(null, users);
     });
 }
@@ -102,7 +107,7 @@ function removeUserName(name) {
     User.find({'name': name}).remove(function (err, result) {
         if (err)
             return console.log(err);
-        console.log(`Person removed`);
+        console.log(`User removed`);
     });
 }
 
