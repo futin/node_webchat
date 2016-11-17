@@ -52,21 +52,21 @@ $(function () {
         creatorImage = $("#creatorImage");
 
     // on connection to server get the id of person's room
-    socket.on('connect', function () {
+    socket.on('connect', () => {
         socket.emit(socketListener.load, roomId);
     });
 
     // save the gravatar url
-    socket.on(socketListener.img, function (data) {
+    socket.on(socketListener.img, (data) =>  {
         img = data;
     });
 
     // receive the names and avatars of all people in the chat room
-    socket.on(socketListener.peopleInChat, function (data) {
+    socket.on(socketListener.peopleInChat, (data) =>  {
         if (data.number === 0) {
             showMessage(showMessageString.connected);
 
-            loginForm.on('submit', function (e) {
+            loginForm.on('submit', (e) =>  {
                 e.preventDefault();
                 room = roomName.val();
                 name = $.trim(yourName.val());
@@ -91,7 +91,7 @@ $(function () {
             });
         } else {
             showMessage(showMessageString.personInChat, data);
-            loginForm.on('submit', function (e) {
+            loginForm.on('submit', (e) =>  {
                 e.preventDefault();
                 name = $.trim(hisName.val());
                 if (name.length < 1) {
@@ -112,32 +112,32 @@ $(function () {
         }
     });
 
-    socket.on(socketListener.startChat, function (data) {
+    socket.on(socketListener.startChat, (data) =>  {
         if (data.result && data.roomId == roomId) {
             showMessage(showMessageString.startChat, data);
         }
     });
 
-    socket.on(socketListener.somebodyLeft, function (data) {
+    socket.on(socketListener.somebodyLeft, (data) => {
         if (data.result && roomId == data.roomId) {
             showMessage(showMessageString.somebodyLeft, data);
         }
     });
 
-    socket.on(socketListener.somebodyJoined, function (data) {
+    socket.on(socketListener.somebodyJoined, (data) => {
         if (data.result && roomId == data.roomId) {
             showMessage(showMessageString.somebodyJoined, data);
         }
     });
 
-    socket.on(socketListener.receive, function (data) {
+    socket.on(socketListener.receive, (data) => {
         if (data.msg.trim().length) {
             createChatMessage(data.msg, data.name, data.img, moment());
             scrollToBottom();
         }
     });
 
-    socket.on(socketListener.isTyping, function (data) {
+    socket.on(socketListener.isTyping, (data) => {
         if (data.result) {
             if (timeout)
                 clearTimeout(timeout);
@@ -147,13 +147,13 @@ $(function () {
         }
     });
 
-    socket.on(socketListener.updateOthers, function (data) {
+    socket.on(socketListener.updateOthers, (data) => {
         if (data.result) {
             setOthers(data);
         }
     });
 
-    socket.on(socketListener.changedName, function (data) {
+    socket.on(socketListener.changedName, (data) => {
         if (data.result && roomId === data.roomId) {
             name = data.name;
             alert(`Name changed successfully into ${name}`);
@@ -162,7 +162,7 @@ $(function () {
         }
     });
 
-    textarea.keypress(function (e) {
+    textarea.keypress((e) => {
 
         // Submit the form on enter
         if (e.which == 13) {
@@ -173,7 +173,7 @@ $(function () {
         }
     });
 
-    chatForm.on('submit', function (e) {
+    chatForm.on('submit', (e) => {
         e.preventDefault();
 
         // Create a new chat message and display it directly
@@ -198,7 +198,7 @@ $(function () {
         textarea.val("");
     });
 
-    uploadForm.on('submit', function (e) {
+    uploadForm.on('submit', (e) => {
         e.preventDefault();
     });
 
@@ -293,7 +293,7 @@ $(function () {
                     inviteSomebody.fadeIn(fadeTime);
                     chatNickname.text("nobody");
                 } else {
-                    personInside.fadeOut(fadeTime, function () {
+                    personInside.fadeOut(fadeTime, () => {
                         inviteSomebody.fadeOut(fadeTime);
                         setOthers(data);
                     });

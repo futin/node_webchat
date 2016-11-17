@@ -4,12 +4,13 @@
 
 // Use the gravatar module, to turn email addresses into avatar images:
 
-const gravatar = require('gravatar');
+const gravatar = require('gravatar'),
+    mongodb = require('./database/mongoDB'),
+    socketListener = require('./public/js/utils').utils.socketListener,
+    log = require('./public/js/logger').logger;
 //const handler = require('./myhandlers/imageHandler');
-const mongodb = require('./database/mongoDB');
-const socketListener = require('./public/js/utils').utils.socketListener;
 
-// Export a function, so that we can pass 
+// Export a function, so that we can pass
 // the app and io instances from the app.js file:
 
 module.exports = function (app, io) {
@@ -36,12 +37,13 @@ module.exports = function (app, io) {
 
     // Initialize a new socket.io application, named 'chat'
     let chat = io.on('connection', function (socket) {
+
         // When the client emits the 'load' event, reply with the
         // number of people in this chat room
         socket.on(socketListener.load, function (data) {
             mongodb.getUsersFromRoom(data, function (err, result) {
                 if (err) {
-                    console.log(err);
+                    log.debug(err);
                     return;
                 }
                 if (result.length === 0) {
@@ -101,16 +103,16 @@ module.exports = function (app, io) {
         socket.on(socketListener.updateName, (data) => {
             mongodb.updateUser({name: socket.name, roomId: socket.roomId}, data.name, (err, user) => {
                 if (err)
-                    return console.log(err);
+                    return log.debug(err);
                 if(user) {
                     mongodb.getUsersFromRoom(socket.roomId, function (err, users) {
                         if (err) {
-                            console.log(err);
+                            log.debug(err);
                         } else {
                             let userNames = getUserNamesAndMails(users).userNames;
                             let emails = getUserNamesAndMails(users).emails;
 
-                            console.log(`User ${socket.name} has changed his name into: ${user.name}`);
+                            log.debug(`User ${socket.name} has changed his name into: ${user.name}`);
                             socket.name = user.name;
                             socket.emit(socketListener.changedName, {result: true, roomId: socket.roomId, name: user.name});
                             socket.broadcast.to(socket.roomId).emit(socketListener.updateOthers, {
@@ -121,7 +123,7 @@ module.exports = function (app, io) {
                         }
                     });
                 }else{
-                    console.log("User exist");
+                    log.debug("User already exist");
                     socket.emit(socketListener.changedName, {result: false});
                 }
             });
@@ -168,12 +170,12 @@ function getUserNamesAndMails(users) {
 function saveUser(user, data, chat) {
     mongodb.saveUser(user, function (err, user) {
         if (err) {
-            console.log(err);
+            log.debug(err);
         } else {
-            console.log(`Saved user: ${user.name}`);
+            log.debug(`Saved user: ${user.name}`);
             mongodb.getUsersFromRoom(data.roomId, function (err, users) {
                 if (err) {
-                    console.log(err);
+                    log.debug(err);
                 } else {
                     let userNames = getUserNamesAndMails(users).userNames;
                     let emails = getUserNamesAndMails(users).emails;
