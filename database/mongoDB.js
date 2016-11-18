@@ -1,6 +1,6 @@
 const mongoose = require('mongoose'),
-    uri = require('../public/js/utils').utils.mongoDB.loadUri,
-    log = require('../public/js/logger').logger;
+    uri = require('../public/js/utils/constants').utils.mongoDB.loadUri,
+    log = require('../public/js/utils/logger').logger;
 
 const Schema = mongoose.Schema;
 

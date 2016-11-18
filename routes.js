@@ -6,8 +6,8 @@
 
 const gravatar = require('gravatar'),
     mongodb = require('./database/mongoDB'),
-    socketListener = require('./public/js/utils').utils.socketListener,
-    log = require('./public/js/logger').logger;
+    socketListener = require('./public/js/utils/constants').utils.socketListener,
+    log = require('./public/js/utils/logger').logger;
 //const handler = require('./myhandlers/imageHandler');
 
 // Export a function, so that we can pass
