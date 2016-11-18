@@ -1,7 +1,7 @@
 var levels = ['info', 'debug', 'error', 'production'];
 
 var logger = {
-    debugLevel: 'info',
+    debugLevel: 'production',
     info: (message) => {
         printLog(message, 'info');
     },
