@@ -10,7 +10,7 @@ const db = mongoose.connection;
 db.on('error', (err) => {
     log.debug(err);
 });
-db.once('open', function () {
+db.once('open', () => {
     log.debug("We are connected!");
 });
 
@@ -33,7 +33,7 @@ function createUser(roomId, roomName, name, email) {
 }
 
 function saveUser(myUser, cb) {
-    myUser.save(function (err, user) {
+    myUser.save((err, user) => {
         if (err)
             return cb(err);
         cb(null, user);
@@ -41,7 +41,7 @@ function saveUser(myUser, cb) {
 }
 
 function updateUser(myUser, newName, cb) {
-    User.findOne({'name': myUser.name, 'roomId': myUser.roomId}, function (err, user) {
+    User.findOne({'name': myUser.name, 'roomId': myUser.roomId}, (err, user) => {
         if (err)
             return cb(err);
         if (!user) {
@@ -58,7 +58,7 @@ function updateUser(myUser, newName, cb) {
             }
             if (!nameExist) {
                 user.name = newName;
-                user.save(function (err, user) {
+                user.save((err, user) => {
                     if (err)
                         return cb(err);
                     cb(null, user);
@@ -71,7 +71,7 @@ function updateUser(myUser, newName, cb) {
 }
 
 function getAllUsers(cb) {
-    User.find({}, 'roomId roomName name email', function (err, users) {
+    User.find({}, 'roomId roomName name email', (err, users) => {
         if (err)
             return cb(err);
         log.debug(`These are all users: \n ${users}`);
@@ -80,7 +80,7 @@ function getAllUsers(cb) {
 }
 
 function getUsersFromRoom(query, cb) {
-    User.find({'roomId': query}, 'roomId roomName name email', function (err, users) {
+    User.find({'roomId': query}, 'roomId roomName name email', (err, users) => {
         if (err) {
             log.debug(`Error occurred: ${err}`);
             return cb(err);
@@ -98,7 +98,7 @@ function getUsersFromRoom(query, cb) {
 }
 
 function getUser(username, cb) {
-    User.find({'name': username}, 'roomId roomName name email', function (err, user) {
+    User.find({'name': username}, 'roomId roomName name email', (err, user) => {
         if (err)
             return cb(err);
         log.debug(`User with name: ${user.name}`);
@@ -107,7 +107,7 @@ function getUser(username, cb) {
 }
 
 function removeUserName(name) {
-    User.find({'name': name}).remove(function (err, result) {
+    User.find({'name': name}).remove((err, result) => {
         if (err)
             return log.debug(err);
         log.debug(`User removed`);
@@ -115,7 +115,7 @@ function removeUserName(name) {
 }
 
 function removeUserRoom(roomId) {
-    User.find({'roomId': roomId}).remove(function (err, result) {
+    User.find({'roomId': roomId}).remove((err, result) => {
         if (err)
             return log.debug(err);
         log.debug("Room removed");
@@ -123,7 +123,7 @@ function removeUserRoom(roomId) {
 }
 
 function removeAll() {
-    User.find({}).remove(function (err, result) {
+    User.find({}).remove((err, result) => {
         if (err)
             return log.debug(err);
         log.debug("All data removed");

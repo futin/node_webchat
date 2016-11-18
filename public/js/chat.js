@@ -1,5 +1,5 @@
 // This file is executed in the browser, when people visit /chat/<random id>
-$(function () {
+$(() => {
     // getting the id of the room from the url
     const roomId = Number(window.location.pathname.match(/\/chat\/(\d+)$/)[1]);
     // connect to the socket
@@ -203,7 +203,7 @@ $(function () {
     });
 
     // Update the relative time stamps on the chat messages every minute
-    setInterval(function () {
+    setInterval(() => {
         messageTimeSent.each(function () {
             let each = moment($(this).data('time'));
             $(this).text(each.fromNow());

@@ -13,14 +13,14 @@ const gravatar = require('gravatar'),
 // Export a function, so that we can pass
 // the app and io instances from the app.js file:
 
-module.exports = function (app, io) {
-    app.get('/', function (req, res) {
+module.exports = (app, io) =>  {
+    app.get('/', (req, res) =>  {
 
         // Render views/home.html
         res.render('home');
     });
 
-    app.get('/create', function (req, res) {
+    app.get('/create', (req, res) => {
 
         // Generate unique id for the room
         let id = Math.round((Math.random() * 1000000));
@@ -29,19 +29,19 @@ module.exports = function (app, io) {
         res.redirect('/chat/' + id);
     });
 
-    app.get('/chat/:id', function (req, res) {
+    app.get('/chat/:id', (req, res) => {
 
         // Render the chant.html view
         res.render('chat');
     });
 
     // Initialize a new socket.io application, named 'chat'
-    let chat = io.on('connection', function (socket) {
+    let chat = io.on('connection', (socket) => {
 
         // When the client emits the 'load' event, reply with the
         // number of people in this chat room
-        socket.on(socketListener.load, function (data) {
-            mongodb.getUsersFromRoom(data, function (err, result) {
+        socket.on(socketListener.load, (data) => {
+            mongodb.getUsersFromRoom(data, (err, result) =>  {
                 if (err) {
                     log.debug(err);
                     return;
@@ -62,7 +62,7 @@ module.exports = function (app, io) {
 
         // When the client emits 'login', save his name and avatar,
         // and add them to the room
-        socket.on(socketListener.login, function (data) {
+        socket.on(socketListener.login, (data) =>  {
 
             // Use the socket object to store data. Each client gets
             // their own unique socket object
@@ -78,25 +78,25 @@ module.exports = function (app, io) {
             socket.join(data.roomId);
 
             //let everybody know that you are in the room
-            socket.broadcast.to(this.roomId).emit(socketListener.somebodyJoined, {
+            socket.broadcast.to(socket.roomId).emit(socketListener.somebodyJoined, {
                 result: true,
-                roomId: this.roomId,
-                name: this.name,
-                email: this.email
+                roomId: socket.roomId,
+                name: socket.name,
+                email: socket.email
             });
 
             //add user to database
-            let user = mongodb.createUser(this.roomId, this.roomName, this.name, this.email);
+            let user = mongodb.createUser(socket.roomId, socket.roomName, socket.name, socket.email);
 
             saveUser(user, data, chat);
         });
 
-        socket.on(socketListener.type, function () {
-            socket.broadcast.to(this.roomId).emit(socketListener.isTyping, {
+        socket.on(socketListener.type, () =>  {
+            socket.broadcast.to(socket.roomId).emit(socketListener.isTyping, {
                 result: true,
-                roomId: this.roomId,
-                name: this.name,
-                email: this.email
+                roomId: socket.roomId,
+                name: socket.name,
+                email: socket.email
             });
         });
 
@@ -105,7 +105,7 @@ module.exports = function (app, io) {
                 if (err)
                     return log.debug(err);
                 if(user) {
-                    mongodb.getUsersFromRoom(socket.roomId, function (err, users) {
+                    mongodb.getUsersFromRoom(socket.roomId, (err, users) =>  {
                         if (err) {
                             log.debug(err);
                         } else {
@@ -130,22 +130,22 @@ module.exports = function (app, io) {
         });
 
         // Handle the sending of messages
-        socket.on(socketListener.msg, function (data) {
+        socket.on(socketListener.msg, (data) =>  {
 
             // When the server receives a message, it sends it to the other person in the room.
             socket.broadcast.to(socket.roomId).emit(socketListener.receive, {msg: data.msg, name: data.name, img: data.img});
         });
 
         // Somebody left the chat
-        socket.on(socketListener.disconnect, function () {
+        socket.on(socketListener.disconnect, () =>  {
 
             // Notify the other person in the chat room
             // that his partner has left
-            socket.broadcast.to(this.roomId).emit(socketListener.somebodyLeft, {
+            socket.broadcast.to(socket.roomId).emit(socketListener.somebodyLeft, {
                 result: true,
-                roomId: this.roomId,
-                name: this.name,
-                email: this.email
+                roomId: socket.roomId,
+                name: socket.name,
+                email: socket.email
             });
 
             // leave the room
@@ -168,12 +168,12 @@ function getUserNamesAndMails(users) {
 }
 
 function saveUser(user, data, chat) {
-    mongodb.saveUser(user, function (err, user) {
+    mongodb.saveUser(user, (err, user) =>  {
         if (err) {
             log.debug(err);
         } else {
             log.debug(`Saved user: ${user.name}`);
-            mongodb.getUsersFromRoom(data.roomId, function (err, users) {
+            mongodb.getUsersFromRoom(data.roomId, (err, users) =>  {
                 if (err) {
                     log.debug(err);
                 } else {
