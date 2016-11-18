@@ -87,7 +87,12 @@ $(() => {
                     showMessage(showMessageString.inviteSomebody);
 
                     // call the server-side function 'login' and send user's parameters
-                    socket.emit(socketListener.login, {roomId: roomId, roomName: room, name: name, email: email});
+                    socket.emit(socketListener.login, {
+                        roomId: roomId,
+                        roomName: room,
+                        name: name,
+                        email: email
+                    });
                 }
             });
         } else {
@@ -190,14 +195,20 @@ $(() => {
                 } else if (textarea.val().indexOf('ch:name=') > -1) {
                     let txt = "ch:name=";
                     let updateName = textarea.val().substring(txt.length + 1, textarea.val().length);
-                    socket.emit(socketListener.updateName, {name: updateName});
+                    socket.emit(socketListener.updateName, {
+                        name: updateName
+                    });
                 }
             } else {
                 createChatMessage(textarea.val(), name, img, moment());
                 scrollToBottom();
 
                 // Send the message to the other person in the chat
-                socket.emit(socketListener.msg, {msg: textarea.val(), name: name, img: img});
+                socket.emit(socketListener.msg, {
+                    msg: textarea.val(),
+                    name: name,
+                    img: img
+                });
             }
         }
         // Empty the textarea

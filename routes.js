@@ -47,7 +47,9 @@ module.exports = (app, io) =>  {
                     return;
                 }
                 if (result.length === 0) {
-                    socket.emit(socketListener.peopleInChat, {number: 0});
+                    socket.emit(socketListener.peopleInChat, {
+                        number: 0
+                    });
                 } else {
                     socket.emit(socketListener.peopleInChat, {
                         number: result.length,
@@ -114,7 +116,11 @@ module.exports = (app, io) =>  {
 
                             log.debug(`User ${socket.name} has changed his name into: ${user.name}`);
                             socket.name = user.name;
-                            socket.emit(socketListener.changedName, {result: true, roomId: socket.roomId, name: user.name});
+                            socket.emit(socketListener.changedName, {
+                                result: true,
+                                roomId: socket.roomId,
+                                name: user.name
+                            });
                             socket.broadcast.to(socket.roomId).emit(socketListener.updateOthers, {
                                 result: true,
                                 userNames: userNames,
@@ -124,7 +130,9 @@ module.exports = (app, io) =>  {
                     });
                 }else{
                     log.debug("User already exist");
-                    socket.emit(socketListener.changedName, {result: false});
+                    socket.emit(socketListener.changedName, {
+                        result: false
+                    });
                 }
             });
         });
@@ -133,7 +141,11 @@ module.exports = (app, io) =>  {
         socket.on(socketListener.msg, (data) =>  {
 
             // When the server receives a message, it sends it to the other person in the room.
-            socket.broadcast.to(socket.roomId).emit(socketListener.receive, {msg: data.msg, name: data.name, img: data.img});
+            socket.broadcast.to(socket.roomId).emit(socketListener.receive, {
+                msg: data.msg,
+                name: data.name,
+                img: data.img
+            });
         });
 
         // Somebody left the chat
