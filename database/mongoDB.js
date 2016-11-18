@@ -10,6 +10,7 @@ const db = mongoose.connection;
 db.on('error', (err) => {
     log.debug(err);
 });
+
 db.once('open', () => {
     log.debug("We are connected!");
 });

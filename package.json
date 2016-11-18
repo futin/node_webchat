@@ -2,7 +2,7 @@
   "name": "NodeChatSystem",
   "version": "0.0.1",
   "engines": {
-    "node": "7.0.0",
+    "node": "7.1.0",
     "npm": "3.10.8"
   },
   "description": "Realtime chat system for Tutorialzine.com",
