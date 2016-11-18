@@ -158,12 +158,14 @@ module.exports = (app, io) =>  {
 function getUserNamesAndMails(users) {
     let userNames = [],
         emails = [];
-    for (var i in users) {
-        if (Object.prototype.hasOwnProperty.call(users, i)) {
-            userNames.push(users[i].name);
-            emails.push(users[i].email);
-        }
+
+    if(users){
+        users.forEach(user => {
+            userNames.push(user.name);
+            emails.push(user.email);
+        });
     }
+
     return {userNames: userNames, emails: emails};
 }
 

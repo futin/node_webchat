@@ -49,13 +49,12 @@ function updateUser(myUser, newName, cb) {
         }
         getUsersFromRoom(user.roomId, (err, users) => {
             let nameExist = false;
-            for (var i in users) {
-                if (Object.prototype.hasOwnProperty.call(users, i)) {
-                    if (users[i].name.indexOf(newName) > -1) {
-                        nameExist = true;
-                    }
-                }
-            }
+
+            users.forEach(user => {
+               if(user.name === newName)
+                   nameExist = true;
+            });
+
             if (!nameExist) {
                 user.name = newName;
                 user.save((err, user) => {

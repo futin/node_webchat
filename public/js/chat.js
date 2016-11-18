@@ -265,12 +265,12 @@ $(() => {
 
     function setOthers(data) {
         others = [];
-        for (var i in data.userNames) {
-            if (Object.prototype.hasOwnProperty.call(data.userNames, i) &&
-                data.userNames[i] !== name) {
-                others.push(data.userNames[i]);
+
+        data.userNames.forEach(user => {
+            if(user !== name){
+                others.push(user);
             }
-        }
+        });
         chatNickname.text(others);
     }
 
