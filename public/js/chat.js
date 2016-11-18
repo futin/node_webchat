@@ -57,16 +57,16 @@ $(() => {
     });
 
     // save the gravatar url
-    socket.on(socketListener.img, (data) =>  {
+    socket.on(socketListener.img, (data) => {
         img = data;
     });
 
     // receive the names and avatars of all people in the chat room
-    socket.on(socketListener.peopleInChat, (data) =>  {
+    socket.on(socketListener.peopleInChat, (data) => {
         if (data.number === 0) {
             showMessage(showMessageString.connected);
 
-            loginForm.on('submit', (e) =>  {
+            loginForm.on('submit', (e) => {
                 e.preventDefault();
                 room = roomName.val();
                 name = $.trim(yourName.val());
@@ -91,7 +91,7 @@ $(() => {
             });
         } else {
             showMessage(showMessageString.personInChat, data);
-            loginForm.on('submit', (e) =>  {
+            loginForm.on('submit', (e) => {
                 e.preventDefault();
                 name = $.trim(hisName.val());
                 if (name.length < 1) {
@@ -106,13 +106,18 @@ $(() => {
                 if (!isValid(email)) {
                     alert("Wrong e-mail format!");
                 } else {
-                    socket.emit(socketListener.login, {roomName: data.roomName, name: name, email: email, roomId: roomId});
+                    socket.emit(socketListener.login, {
+                        roomName: data.roomName,
+                        name: name,
+                        email: email,
+                        roomId: roomId
+                    });
                 }
             });
         }
     });
 
-    socket.on(socketListener.startChat, (data) =>  {
+    socket.on(socketListener.startChat, (data) => {
         if (data.result && data.roomId == roomId) {
             showMessage(showMessageString.startChat, data);
         }
@@ -286,18 +291,19 @@ $(() => {
                 onConnect.fadeOut(fadeTime);
                 break;
             case showMessageString.startChat:
-                if (data.userNames && data.userNames.length == 1) {
+                personInside.fadeOut(fadeTime, () => {
+                    if (data.userNames && data.userNames.length == 1) {
 
-                    // Set the invite link content
-                    $("#link").text(window.location.href);
-                    inviteSomebody.fadeIn(fadeTime);
-                    chatNickname.text("nobody");
-                } else {
-                    personInside.fadeOut(fadeTime, () => {
+                        // Set the invite link content
+                        $("#link").text(window.location.href);
+                        inviteSomebody.fadeIn(fadeTime);
+                        chatNickname.text("nobody");
+                    } else {
                         inviteSomebody.fadeOut(fadeTime);
                         setOthers(data);
-                    });
-                }
+                    }
+                });
+
                 noMessages.fadeIn(fadeTime);
                 footer.fadeIn(fadeTime);
                 noMessagesImage.attr("src", data.emails[1]);
