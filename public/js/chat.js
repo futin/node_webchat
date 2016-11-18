@@ -26,7 +26,8 @@ $(() => {
         personInside = $(".personinside"),
         chatScreen = $(".chatscreen"),
         left = $(".left"),
-        noMessages = $(".nomessages")
+        noMessages = $(".nomessages"),
+        noMessagesNote = $(".nomessages h5");
 
     // some more jquery objects
     let chatNickname = $(".nickname-chat"),
@@ -271,7 +272,7 @@ $(() => {
                 others.push(user);
             }
         });
-        chatNickname.text(others);
+        chatNickname.text(`with ${others}`);
     }
 
     function showMessage(status, data) {
@@ -297,9 +298,11 @@ $(() => {
                         // Set the invite link content
                         $("#link").text(window.location.href);
                         inviteSomebody.fadeIn(fadeTime);
-                        chatNickname.text("nobody");
+                        chatNickname.text("by yourself");
+                        noMessagesNote.text('Please wait for others to join.');
                     } else {
                         inviteSomebody.fadeOut(fadeTime);
+                        noMessagesNote.text('Send them a message from the form below!');
                         setOthers(data);
                     }
                 });
@@ -315,9 +318,11 @@ $(() => {
                 removeFromArray(others, data.name);
 
                 if (others.length > 0) {
-                    chatNickname.text(others);
+                    chatNickname.text(`with ${others}`);
+                    noMessagesNote.text('Send them a message from the form below!');
                 } else {
-                    chatNickname.text("nobody");
+                    chatNickname.text("by yourself");
+                    noMessagesNote.text('Please wait for others to join.');
                 }
                 break;
             case showMessageString.somebodyJoined:
