@@ -29,5 +29,5 @@ var utils = {
     }
 };
 module.exports = {
-    utils: utils
+    utils
 };

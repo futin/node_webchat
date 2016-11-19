@@ -190,9 +190,9 @@ $(() => {
         // Create a new chat message and display it directly
         if (textarea.val().trim().length) {
             if (textarea.val().startsWith('#')) {
-                if (textarea.val().indexOf('clear') > -1) {
+                if (textarea.val().includes('clear')) {
                     chats.empty();
-                } else if (textarea.val().indexOf('ch:name=') > -1) {
+                } else if (textarea.val().includes('ch:name=')) {
                     let txt = "ch:name=";
                     let updateName = textarea.val().substring(txt.length + 1, textarea.val().length);
                     socket.emit(socketListener.updateName, {
@@ -270,8 +270,8 @@ $(() => {
     }
 
     function removeFromArray(array, data) {
-        let index = array.indexOf(data);
-        if (index > -1)
+        let index = array.find(i => i === data);
+        if (index)
             array.splice(index, 1);
     }
 

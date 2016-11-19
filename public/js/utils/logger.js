@@ -23,5 +23,5 @@ function printLog(message, level) {
 }
 
 module.exports = {
-    logger: logger
+    logger
 };

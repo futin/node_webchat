@@ -131,13 +131,13 @@ function removeAll() {
 }
 
 module.exports = {
-    createUser: createUser,
-    saveUser: saveUser,
-    updateUser: updateUser,
-    getAllUsers: getAllUsers,
-    getUsersFromRoom: getUsersFromRoom,
-    getUser: getUser,
-    removeUserRoom: removeUserRoom,
-    removeAll: removeAll,
-    removeUserName: removeUserName
+    createUser,
+    saveUser,
+    updateUser,
+    getAllUsers,
+    getUsersFromRoom,
+    getUser,
+    removeUserRoom,
+    removeAll,
+    removeUserName
 };

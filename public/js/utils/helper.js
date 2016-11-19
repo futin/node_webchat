@@ -22,4 +22,6 @@ function previewAndSubmit(){
     }
 }
 
-module.exports.previewAndSubmit=previewAndSubmit;
+module.exports = {
+    previewAndSubmit
+};
