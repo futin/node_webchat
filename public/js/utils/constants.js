@@ -28,6 +28,7 @@ var utils = {
         loadUri : "mongodb://admin:admin@ds029665.mlab.com:29665/futinsdatabase"
     }
 };
+
 module.exports = {
     utils
 };

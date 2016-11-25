@@ -34,11 +34,7 @@ function createUser(roomId, roomName, name, email) {
 }
 
 function saveUser(myUser, cb) {
-    myUser.save((err, user) => {
-        if (err)
-            return cb(err);
-        cb(null, user);
-    });
+    myUser.save(cb);
 }
 
 function updateUser(myUser, newName, cb) {
@@ -58,11 +54,7 @@ function updateUser(myUser, newName, cb) {
 
             if (!nameExist) {
                 user.name = newName;
-                user.save((err, user) => {
-                    if (err)
-                        return cb(err);
-                    cb(null, user);
-                });
+                user.save(cb);
             }else{
                 cb(null);
             }
